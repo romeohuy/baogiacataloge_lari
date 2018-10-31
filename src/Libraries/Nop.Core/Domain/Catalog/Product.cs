@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Estimate;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Core.Domain.Catalog
 {
@@ -553,6 +554,23 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the date and time of product update
         /// </summary>
         public DateTime UpdatedOnUtc { get; set; }
+
+
+        public int TypeProductPrintId { get; set; }
+        public TypeProductPrint TypeProductPrint
+        {
+            get => (TypeProductPrint)TypeProductPrintId;
+            set => TypeProductPrintId = (int)value;
+        }
+
+        public int TypeEstimateStepId { get; set; }
+        public TypeEstimateStep TypeEstimateStep
+        {
+            get => (TypeEstimateStep)TypeEstimateStepId;
+            set => TypeEstimateStepId = (int)value;
+        }
+
+        public string UnitName { get; set; }
 
         /// <summary>
         /// Gets or sets the product type

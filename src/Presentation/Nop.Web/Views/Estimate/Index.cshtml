@@ -1,0 +1,58 @@
+﻿@using Nop.Core.Domain.Estimate
+@model EstimatePriceModel
+@{
+    Layout = "_ColumnsOne";
+
+    //page class
+    Html.AppendPageCssClassParts("html-home-page");
+}
+<div class="page home-page">
+    <div class="page-body">
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingEstimateInfo">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseEstimateInfo" aria-expanded="true" aria-controls="collapseOne">
+                            @T("Common.EstimateInfo")
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseEstimateInfo" class="collapse show" aria-labelledby="headingEstimateInfo" data-parent="#accordion">
+                    <div class="card-body">
+                        @await Html.PartialAsync("_EstimateInfo", Model.EstimateInfoModel)
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingBia">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseBia" aria-expanded="false" aria-controls="collapseTwo">
+                            @T("Common.TypeEstimateStep.Bia")
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseBia" class="collapse" aria-labelledby="headingBia" data-parent="#accordion">
+                    <div class="card-body">
+                        @await Html.PartialAsync("_EstimateProductBia", Model.ProductByTypeEstimateSteps.FirstOrDefault(_=>_.TypeEstimateStep == TypeEstimateStep.Bia))
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingBiaTruocIn">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseBiaTruocIn" aria-expanded="false" aria-controls="collapseThree">
+                            @T("Common.TypeEstimateStep.BiaTruocIn")
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseBiaTruocIn" class="collapse" aria-labelledby="headingBiaTruocIn" data-parent="#accordion">
+                    <div class="card-body">
+                        @await Html.PartialAsync("_EstimateProductBiaTruocIn", Model.ProductByTypeEstimateSteps.FirstOrDefault(_ => _.TypeEstimateStep == TypeEstimateStep.BiaTruocIn))
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1159,7 +1159,7 @@ namespace Nop.Web.Factories
 
                 //reviews
                 model.ReviewOverviewModel = PrepareProductReviewOverviewModel(product);
-
+                model.TypeEstimateStep = product.TypeEstimateStep;
                 models.Add(model);
             }
             return models;

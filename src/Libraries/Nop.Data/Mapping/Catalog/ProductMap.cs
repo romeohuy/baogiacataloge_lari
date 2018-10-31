@@ -43,6 +43,8 @@ namespace Nop.Data.Mapping.Catalog
             builder.Property(product => product.OverriddenGiftCardAmount).HasColumnType("decimal(18, 4)");
 
             builder.Ignore(product => product.ProductType);
+            builder.Ignore(product => product.TypeEstimateStep);
+            builder.Ignore(product => product.TypeProductPrint);
             builder.Ignore(product => product.BackorderMode);
             builder.Ignore(product => product.DownloadActivationType);
             builder.Ignore(product => product.GiftCardType);

@@ -1,6 +1,7 @@
 using System;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Estimate;
 
 namespace Nop.Core.Domain.Orders
 {
@@ -63,6 +64,33 @@ namespace Nop.Core.Domain.Orders
         /// Gets or sets the date and time of instance update
         /// </summary>
         public DateTime UpdatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the weight
+        /// </summary>
+        public decimal Weight { get; set; }
+
+        /// <summary>
+        /// Gets or sets the length
+        /// </summary>
+        public decimal Length { get; set; }
+
+        /// <summary>
+        /// Gets or sets the width
+        /// </summary>
+        public decimal Width { get; set; }
+
+        /// <summary>
+        /// Gets or sets the height
+        /// </summary>
+        public decimal Height { get; set; }
+
+        public int TypeEstimateStepId { get;set; }
+        public TypeEstimateStep TypeEstimateStep
+        {
+            get => (TypeEstimateStep)TypeEstimateStepId;
+            set => TypeEstimateStepId = (int)value;
+        }
 
         /// <summary>
         /// Gets the log type

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Estimate;
 using Nop.Web.Framework.Models;
 using Nop.Web.Models.Media;
 
@@ -35,6 +36,8 @@ namespace Nop.Web.Models.Catalog
         public IList<ProductSpecificationModel> SpecificationAttributeModels { get; set; }
         //price
         public ProductReviewOverviewModel ReviewOverviewModel { get; set; }
+
+        public TypeEstimateStep TypeEstimateStep { get; set; }
 
 		#region Nested Classes
 

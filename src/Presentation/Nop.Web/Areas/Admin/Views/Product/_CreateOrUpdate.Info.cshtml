@@ -7,6 +7,7 @@
 @using Nop.Services.Catalog;
 @using System.Text;
 @using System.Text.Encodings.Web
+@using Nop.Core.Domain.Estimate
 @using Nop.Services
 @using Nop.Services.Stores
 
@@ -495,6 +496,24 @@
                         <div class="col-md-9">
                             <nop-select asp-for="ProductTypeId" asp-items="@(((ProductType)Model.ProductTypeId).ToSelectList())" />
                             <span asp-validation-for="ProductTypeId"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <nop-label asp-for="TypeProductPrintId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="TypeProductPrintId" asp-items="@(((TypeProductPrint)Model.TypeProductPrintId).ToSelectList())" />
+                            <span asp-validation-for="TypeProductPrintId"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <nop-label asp-for="TypeEstimateStepId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="TypeEstimateStepId" asp-items="@(((TypeEstimateStep)Model.TypeEstimateStepId).ToSelectList())" />
+                            <span asp-validation-for="TypeEstimateStepId"></span>
                         </div>
                     </div>
                     @if (Model.Id > 0 && Model.AssociatedToProductId > 0)

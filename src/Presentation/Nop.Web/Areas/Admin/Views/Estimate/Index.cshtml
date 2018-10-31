@@ -1,0 +1,55 @@
+﻿@using Nop.Core.Domain.Estimate
+@using Nop.Services
+@model EstimatePriceModel
+@{
+    //page class
+    Html.AppendPageCssClassParts("html-home-page");
+    //page title
+    ViewBag.Title = T("Admin.Estimates.Create").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Estimates");
+}
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Estimates.Create")
+    </h1>
+
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-heading">@T("Admin.Estimates.SelectTypeProductEstimate")</div>
+                <div class="panel-body">
+                    <div class="row">
+                        @foreach (var typeEstimateStep in (TypeEstimate.CatalogueCoRuot).ToSelectList())
+                        {
+                            <div class="col-md-12" style="margin: 5px 0;">
+                                <i class="fa fa-arrow-circle-right"></i>
+                                <a asp-action="Create" asp-route-typeEstimateStep="@typeEstimateStep.Value">@typeEstimateStep.Text</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">@T("Admin.Estimates.SelectExist")</div>
+                <div class="panel-body">
+                    <div class="row">
+                        @foreach (var item in Model.EstimateInfoNewModels)
+                        {
+                            <div class="col-md-12" style="margin: 5px 0;">
+                                <i class="fa fa-arrow-circle-right"></i>
+                                <a asp-action="Create" asp-route-id="@item.Id">
+                                    ID:#@item.Id - @item.Title (@($"{item.CustomerFirstName} {item.CustomerLastName} - {item.CustomerPhone}") )- @item.CreatedDate.ToString("g")
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

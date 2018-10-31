@@ -26,6 +26,9 @@ namespace Nop.Web.Infrastructure
             //home page
             routeBuilder.MapLocalizedRoute("HomePage", "",
 				new { controller = "Home", action = "Index" });
+            //Estimate
+            routeBuilder.MapLocalizedRoute("EstimatePrice", "estimate/",
+				new { controller = "Estimate", action = "Index" });
 
             //login
             routeBuilder.MapLocalizedRoute("Login", "login/",

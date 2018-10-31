@@ -8,6 +8,7 @@ using Nop.Core.Data.Extensions;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Estimate;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Security;
@@ -372,6 +373,15 @@ namespace Nop.Services.Catalog
             }
 
             return sortedProducts;
+        }
+
+        public IList<Product> GetProductsByTypeEstimateStep(TypeEstimateStep step)
+        {
+            var stepId = (int) step;
+            var query = from p in _productRepository.Table
+                where p.TypeEstimateStepId == stepId orderby p.Name 
+                select p ;
+            return query.ToList();
         }
 
         /// <summary>

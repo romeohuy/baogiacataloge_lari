@@ -1,0 +1,85 @@
+﻿@using Nop.Core.Domain.Estimate
+@using Nop.Services
+@model EstimatePriceModel
+@{
+    //page class
+    Html.AppendPageCssClassParts("html-home-page");
+    //page title
+    ViewBag.Title = T("Admin.Estimates.Create").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Estimates");
+}
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Estimates.Create") - @Model.EstimateInfoModel.TypeEstimate.ToLocalizationName()
+    </h1>
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingEstimateInfo">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseEstimateInfo" aria-expanded="true" aria-controls="collapseOne">
+                                        @T("Common.EstimateInfo")
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseEstimateInfo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingEstimateInfo">
+                                <div class="panel-body">
+                                    @await Html.PartialAsync("_EstimateInfo", Model.EstimateInfoModel)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingBia">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseBia" aria-expanded="false" aria-controls="collapseTwo">
+                                        @TypeEstimateStep.Bia.ToLocalizationName()
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseBia" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingBia">
+                                <div class="panel-body">
+                                    @await Html.PartialAsync("_EstimateProductBia", Model.ProductByTypeEstimateSteps.FirstOrDefault(_ => _.TypeEstimateStep == TypeEstimateStep.Bia))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingBiaTruocIn">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseBiaTruocIn" aria-expanded="false" aria-controls="collapseThree">
+                                        @TypeEstimateStep.BiaTruocIn.ToLocalizationName()
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseBiaTruocIn" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingBiaTruocIn">
+                                <div class="panel-body">
+                                    @await Html.PartialAsync("_EstimateProductBiaTruocIn", Model.ProductByTypeEstimateSteps.FirstOrDefault(_ => _.TypeEstimateStep == TypeEstimateStep.BiaTruocIn))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingThanhPham">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThanhPham" aria-expanded="false" aria-controls="collapseThree">
+                                        @TypeEstimateStep.ThanhPham.ToLocalizationName()
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseThanhPham" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThanhPham">
+                                <div class="panel-body">
+                                    @await Html.PartialAsync("_EstimateProductBiaTruocIn", Model.ProductByTypeEstimateSteps.FirstOrDefault(_ => _.TypeEstimateStep == TypeEstimateStep.ThanhPham))
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

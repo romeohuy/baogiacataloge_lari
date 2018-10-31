@@ -1,0 +1,56 @@
+﻿@using Nop.Core
+@using Nop.Services.Helpers
+@using Nop.Web.Framework.UI
+@inject IWorkContext workContext
+@inject IThemeContext themeContext
+@inject IUserAgentHelper userAgentHelper
+@{  
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+    var themeName = themeContext.WorkingThemeName;
+    var isIe8 = userAgentHelper.IsIe8();
+    var kendoVersion = "2014.1.318";
+    //add browser specific CSS files
+    if (isIe8)
+    {
+        Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/ie8.css");
+    }
+    //add main CSS file
+    if (supportRtl)
+    {
+        // RTL didn't supported bootsclean theme
+        //Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles.rtl.css");
+    }
+    else
+    {
+        Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/responsive.css");
+        Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles.css");
+    }
+
+    Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/bootstrap.min.css");
+    Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/font-awesome.min.css");
+
+    //add jQuery UI css file
+
+    Html.AppendCssFileParts("~/lib/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    //add browser specific JS files
+
+    //scripts
+    Html.AppendScriptParts($"~/lib/kendo/{kendoVersion}/kendo.web.min.js");
+    Html.AppendScriptParts("~/js/admin.common.js");
+    Html.AppendScriptParts("~/lib/typeahead/typeahead.bundle.min.js");
+    Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
+    Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate.unobtrusive/jquery.validate.unobtrusive.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
+    //Html.AppendScriptParts("~/lib/adminLTE/js/adminlte.min.js");
+    //Html.AppendScriptParts("~/lib/bootstrap/js/bootstrap.min.js");
+    //Html.AppendScriptParts("~/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js");
+    Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2.min.js");
+
+    //add js file for ie8&less browser
+    if (isIe8)
+    {
+        Html.AddScriptParts(ResourceLocation.Footer, "~/Themes/BootsClean/Content/scripts/selectivizr.min.js");
+        Html.AddScriptParts(ResourceLocation.Footer, "~/Themes/BootsClean/Content/scripts/respond.min.js");
+    }
+}

@@ -750,6 +750,8 @@ namespace Nop.Web.Areas.Admin.Factories
                     var defaultProductPicture = _pictureService.GetPicturesByProductId(product.Id, 1).FirstOrDefault();
                     productModel.PictureThumbnailUrl = _pictureService.GetPictureUrl(defaultProductPicture, 75);
                     productModel.ProductTypeName = _localizationService.GetLocalizedEnum(product.ProductType);
+                    productModel.TypeProductPrintName = _localizationService.GetLocalizedEnum(product.TypeProductPrint);
+                    productModel.TypeEstimateStepName = _localizationService.GetLocalizedEnum(product.TypeEstimateStep);
                     if (product.ProductType == ProductType.SimpleProduct && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
                         productModel.StockQuantityStr = _productService.GetTotalStockQuantity(product).ToString();
 

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Infrastructure;
 using Nop.Services.Localization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services
 {
@@ -36,6 +36,19 @@ namespace Nop.Services
             if (markCurrentAsSelected)
                 selectedValue = Convert.ToInt32(enumObj);
             return new SelectList(values, "ID", "Name", selectedValue);
+        }
+
+        public static string ToLocalizationName<TEnum>(this TEnum enumObj, bool useLocalization = true) where TEnum : struct
+        {
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException("An Enumeration type is required.", nameof(enumObj));
+
+            var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+            var values = from TEnum enumValue in Enum.GetValues(typeof(TEnum))
+                         where Convert.ToInt32(enumValue) == Convert.ToInt32(enumObj)
+                         select new { ID = Convert.ToInt32(enumValue), Name = useLocalization ? localizationService.GetLocalizedEnum(enumValue) : CommonHelper.ConvertEnum(enumValue.ToString()) };
+
+            return values.FirstOrDefault()?.Name;
         }
 
         /// <summary>

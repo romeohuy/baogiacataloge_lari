@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Web.Areas.Admin.Models.Settings;
 using Nop.Web.Areas.Admin.Validators.Catalog;
 using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nop.Web.Areas.Admin.Models.Catalog
 {
@@ -14,7 +14,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
     /// Represents a product model
     /// </summary>
     [Validator(typeof(ProductValidator))]
-    public partial class ProductModel : BaseNopEntityModel, 
+    public partial class ProductModel : BaseNopEntityModel,
         IAclSupportedModel, IDiscountSupportedModel, ILocalizedModel<ProductLocalizedModel>, IStoreMappingSupportedModel
     {
         #region Ctor
@@ -393,6 +393,23 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.UpdatedOn")]
         public DateTime? UpdatedOn { get; set; }
+
+
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.TypeProductPrint")]
+        public int TypeProductPrintId { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.TypeProductPrint")]
+        public string TypeProductPrintName { get; set; }
+
+
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.TypeEstimateStep")]
+        public int TypeEstimateStepId { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.TypeEstimateStep")]
+        public string TypeEstimateStepName { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.UnitName")]
+        public string UnitName { get; set; }
 
         public string PrimaryStoreCurrencyCode { get; set; }
 

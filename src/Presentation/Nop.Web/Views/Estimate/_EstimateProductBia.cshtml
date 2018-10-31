@@ -1,0 +1,45 @@
+﻿@using Nop.Core.Domain.Estimate
+@using Nop.Services
+@model ProductByTypeEstimateStepModel
+
+<div class="row">
+    <div class="col-md-2">
+        <nop-label asp-for="ProductId" />
+    </div>
+    <div class="col-md-8 mb-3">
+        <input type="hidden" value="@Model.TypeEstimateStepId" id="@Html.IdFor(m => m.TypeEstimateStepId)" name="@Html.IdFor(m => m.TypeEstimateStepId)"/>
+
+        <nop-select asp-for="ProductId" asp-items="@Model.ProductItems"/>
+    </div>
+    <div class="col-md-2 mb-3">
+        <button id="btnSelectProductBia" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
+    </div>
+</div>
+<div id="product-bia-info"></div>
+<script>
+    $(function() {
+        $("#btnSelectProductBia").on('click', function() {
+            var productId = $("#@Html.IdFor(model=>model.ProductId)").val();
+            if (productId === '0') {
+                alert('Vui lòng chọn sản phẩm.');
+            } else {
+                //Call ajax submit form
+                $.ajax({
+                    url: "@Html.Raw(Url.Action("EstimateLoadProduct", "Estimate"))",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        productId: productId
+                    }
+                }).done(function( result ) {
+                    if (result.Success) {
+                        $("#product-bia-info").html(result.Data);
+                    } else {
+                        
+                    }
+                
+                });
+            }
+        });
+    });
+</script>

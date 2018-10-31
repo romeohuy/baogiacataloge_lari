@@ -6,6 +6,7 @@ using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Estimate;
 using Nop.Core.Domain.Forums;
 using Nop.Core.Domain.Gdpr;
 using Nop.Core.Domain.Localization;
@@ -41,6 +42,7 @@ using Nop.Web.Areas.Admin.Models.Common;
 using Nop.Web.Areas.Admin.Models.Customers;
 using Nop.Web.Areas.Admin.Models.Directory;
 using Nop.Web.Areas.Admin.Models.Discounts;
+using Nop.Web.Areas.Admin.Models.Estimate;
 using Nop.Web.Areas.Admin.Models.ExternalAuthentication;
 using Nop.Web.Areas.Admin.Models.Forums;
 using Nop.Web.Areas.Admin.Models.Localization;
@@ -101,7 +103,7 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
             CreateTaxMaps();
             CreateTopicsMaps();
             CreateVendorsMaps();
-
+            CreateEstimateMaps();
             //add some generic mapping rules
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -166,6 +168,15 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
         }
 
         #endregion
+
+        protected virtual void CreateEstimateMaps()
+        {
+            CreateMap<EstimateInfo, EstimateInfoModel>()
+                .ForMember(model => model.Customers, options => options.Ignore());
+            CreateMap<EstimateInfoModel, EstimateInfo>();
+
+        }
+
 
         #region Utilities
 
@@ -399,6 +410,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(model => model.ProductsTypesSupportedByProductTemplates, options => options.Ignore())
                 .ForMember(model => model.ProductTags, options => options.Ignore())
                 .ForMember(model => model.ProductTypeName, options => options.Ignore())
+                .ForMember(model => model.TypeProductPrintName, options => options.Ignore())
+                .ForMember(model => model.TypeEstimateStepName, options => options.Ignore())
                 .ForMember(model => model.ProductWarehouseInventoryModels, options => options.Ignore())
                 .ForMember(model => model.RelatedProductSearchModel, options => options.Ignore())
                 .ForMember(model => model.SelectedCategoryIds, options => options.Ignore())
@@ -434,11 +447,15 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(entity => entity.ProductReviews, options => options.Ignore())
                 .ForMember(entity => entity.ProductSpecificationAttributes, options => options.Ignore())
                 .ForMember(entity => entity.ProductType, options => options.Ignore())
+                .ForMember(entity => entity.TypeEstimateStep, options => options.Ignore())
+                .ForMember(entity => entity.TypeProductPrint, options => options.Ignore())
                 .ForMember(entity => entity.ProductWarehouseInventory, options => options.Ignore())
                 .ForMember(entity => entity.RecurringCyclePeriod, options => options.Ignore())
                 .ForMember(entity => entity.RentalPricePeriod, options => options.Ignore())
                 .ForMember(entity => entity.TierPrices, options => options.Ignore())
                 .ForMember(entity => entity.UpdatedOnUtc, options => options.Ignore());
+
+            CreateMap<Product, ProductEstimateModel>();
 
             CreateMap<ProductAttribute, ProductAttributeModel>()
                 .ForMember(model => model.PredefinedProductAttributeValueSearchModel, options => options.Ignore())

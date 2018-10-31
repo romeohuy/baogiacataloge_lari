@@ -26,6 +26,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Discounts;
+using Nop.Services.Estimate;
 using Nop.Services.Events;
 using Nop.Services.ExportImport;
 using Nop.Services.Forums;
@@ -225,6 +226,7 @@ namespace Nop.Web.Framework.Infrastructure
             builder.RegisterType<EventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<SubscriptionService>().As<ISubscriptionService>().SingleInstance();
             builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
+            builder.RegisterType<EstimateInfoService>().As<IEstimateInfoService>().InstancePerLifetimeScope();
 
 
             builder.RegisterType<ActionContextAccessor>().As<IActionContextAccessor>().InstancePerLifetimeScope();

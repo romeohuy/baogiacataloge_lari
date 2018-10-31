@@ -33,6 +33,7 @@ namespace Nop.Data.Mapping.Orders
                 .IsRequired();
 
             builder.Ignore(item => item.ShoppingCartType);
+            builder.Ignore(item => item.TypeEstimateStep);
 
             base.Configure(builder);
         }

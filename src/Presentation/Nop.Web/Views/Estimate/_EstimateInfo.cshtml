@@ -1,0 +1,159 @@
+﻿@using Nop.Core.Domain.Estimate
+@using Nop.Services
+@model EstimateInfoModel
+<form asp-controller="Estimate" asp-action="EstimateInfoCreate" method="post" id="estimate-info-form">
+    <div id="estimate-info" class="row">
+
+        <input id="@Html.IdFor(model => model.Id)" name="@Html.IdFor(model => model.Id)" type="hidden" value="@Model.Id" />
+        <input id="@Html.IdFor(model => model.CustomerId)" name="@Html.IdFor(model => model.CustomerId)" type="hidden" value="@Model.CustomerId" />
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="Customers" />
+            <nop-select asp-for="Customers" asp-items="@Model.Customers" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="ProductTypeName" />
+            <nop-editor asp-for="ProductTypeName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="CustomerFirstName" />
+            <nop-editor asp-for="CustomerFirstName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="CustomerLastName" />
+            <nop-editor asp-for="CustomerLastName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="CustomerPhone" />
+            <nop-editor asp-for="CustomerPhone" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="NumberEstimate" />
+            <nop-editor asp-for="NumberEstimate" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="Title" />
+            <nop-editor asp-for="Title" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="ProductName" />
+            <nop-editor asp-for="ProductName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="TotalNumber" />
+            <nop-editor asp-render-form-control-class="true" asp-for="TotalNumber" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="UnitName" />
+            <nop-editor asp-for="UnitName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="ExtendNote" />
+            <nop-editor asp-for="ExtendNote" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="CreatedDate" />
+            <nop-editor asp-render-form-control-class="true" asp-for="CreatedDate" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <nop-label asp-for="TypeEstimateId" />
+            <nop-select asp-for="TypeEstimateId" asp-items="@(((TypeEstimate) Model.TypeEstimateId).ToSelectList())" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <button id="btn-save-estimate-info" class="btn btn-success btn-lg btn-block" type="button">@T("Common.EstimateInfo.Save")</button>
+        </div>
+        <div class="col-md-6 mb-3">
+            <button id="btn-reset-info" class="btn btn-danger btn-lg btn-block" type="button">@T("Common.EstimateInfo.ResetInfo")</button>
+        </div>
+    </div>
+</form>
+<script>
+    $(function() {
+        var customerId = 0;
+        $("#@Html.IdFor(m=>m.Customers)").on('change', function() {
+            customerId = $(this).val();
+            if (customerId === 0) {
+                
+            } else {
+                $.ajax({
+                    url: "@Html.Raw(Url.Action("GetEstimateCustomerInfo", "Estimate"))",
+                    type: "GET",
+                    dataType: "json",
+                    data: {
+                        customerId: customerId
+                    }
+                }).done(function( result ) {
+                    if (result.Success) {
+                        $("#@Html.IdFor(model=>model.CustomerId)").val(result.Data.CustomerId);
+                        $("#@Html.IdFor(model=>model.CustomerFirstName)").val(result.Data.CustomerFirstName);
+                        $("#@Html.IdFor(model=>model.CustomerLastName)").val(result.Data.CustomerLastName);
+                        $("#@Html.IdFor(model=>model.CustomerPhone)").val(result.Data.CustomerPhone);
+                    } else {
+                        alert('Dữ liệu không hợp lệ.');
+                    }
+                
+                });
+            }
+        });
+
+        $("#btn-save-estimate-info").on('click', function() {
+            //Call ajax submit form
+            $.ajax({
+                url: "@Html.Raw(Url.Action("EstimateInfoCreate", "Estimate"))",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    CustomerFirstName: $('#@Html.IdFor(model => model.CustomerFirstName)').val(),
+                    CustomerLastName: $('#@Html.IdFor(model => model.CustomerLastName)').val(),
+                    CustomerPhone: $('#@Html.IdFor(model => model.CustomerPhone)').val(),
+                    NumberEstimate: $('#@Html.IdFor(model => model.NumberEstimate)').val(),
+                    Title: $('#@Html.IdFor(model => model.Title)').val(),
+                    UnitName: $('#@Html.IdFor(model => model.UnitName)').val(),
+                    TotalNumber: $('#@Html.IdFor(model => model.TotalNumber)').val(),
+                    ProductTypeName: $('#@Html.IdFor(model => model.ProductTypeName)').val(),
+                    ProductName: $('#@Html.IdFor(model => model.ProductName)').val(),
+                    ExtendNote: $('#@Html.IdFor(model => model.ExtendNote)').val(),
+                    CreatedDate: $('#@Html.IdFor(model => model.CreatedDate)').val(),
+                    TypeEstimateId: $('#@Html.IdFor(model => model.TypeEstimateId)').val()
+                }
+            }).done(function( data ) {
+                if (data.Success) {
+                    $("#@Html.IdFor(model=>model.Id)").val(data.EstimateInfoId);
+                    $("#collapseBia").collapse('show');
+                } else {
+                    alert('Dữ liệu không hợp lệ.');
+                }
+                
+            });
+            
+        });
+
+        $("#btn-reset-info").on('click', function() {
+            ClearInfo();
+        });
+    });
+
+    function ClearCustomer() {
+        $("#@Html.IdFor(model=>model.CustomerId)").val('0');
+        $("#@Html.IdFor(model=>model.CustomerFirstName)").val('');
+        $("#@Html.IdFor(model=>model.CustomerLastName)").val('');
+        $("#@Html.IdFor(model=>model.CustomerPhone)").val('');
+    }
+
+    function ClearInfo() {
+        $("#@Html.IdFor(model=>model.CustomerFirstName)").val('');
+        $("#@Html.IdFor(model=>model.CustomerLastName)").val('');
+        $('#@Html.IdFor(model => model.CustomerPhone)').val('');
+        $('#@Html.IdFor(model => model.NumberEstimate)').val('');
+        $('#@Html.IdFor(model => model.Title)').val('');
+        $('#@Html.IdFor(model => model.UnitName)').val('');
+        $('#@Html.IdFor(model => model.TotalNumber)').val('');
+        $('#@Html.IdFor(model => model.ProductTypeName)').val('');
+        $('#@Html.IdFor(model => model.ProductName)').val('');
+        $('#@Html.IdFor(model => model.ExtendNote)').val('');
+        $('#@Html.IdFor(model => model.CreatedDate)').val('@DateTime.Now');
+        $('#@Html.IdFor(model => model.TypeEstimateId)').val();
+    }
+</script>

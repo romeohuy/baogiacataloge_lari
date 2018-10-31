@@ -16,6 +16,7 @@
         };
         @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
     }
+    <li><a href="@Url.RouteUrl("EstimatePrice")">@T("EstimatePrice")</a></li>
     @foreach (var topic in Model.Topics)
     {
         <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>

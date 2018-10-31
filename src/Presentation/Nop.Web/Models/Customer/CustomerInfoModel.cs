@@ -164,5 +164,19 @@ namespace Nop.Web.Models.Customer
         }
         
         #endregion
+
+        public string GetFullName()
+        {
+            return $"{this.FirstName} {this.LastName}";
+        }
+    }
+
+    public class CustomerBasicInfoModel
+    {
+        public int CustomerId { get; set; }
+        public string CustomerAddress { get; set; }
+        public string CustomerPhone { get; set; }
+        public string CustomerFirstName { get; set; }
+        public string CustomerLastName { get; set; }
     }
 }

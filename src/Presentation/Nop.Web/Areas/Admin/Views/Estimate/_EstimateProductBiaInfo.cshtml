@@ -1,0 +1,75 @@
+﻿@model ProductEstimateModel
+<hr />
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">@T("Admin.Catalog.Products.EditProductDetails")</div>
+        <div class="panel-body">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Name" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="Name" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="ShortDescription" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="ShortDescription" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="UnitName" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="UnitName" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="TotalNumber" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="TotalNumber" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $("#btnAddToEstimate").on('click', function() {
+            if ($("#@Html.IdFor(model=>model.Id)").val() === '0') {
+                alert('Vui lòng chọn sản phẩm.');
+            } else {
+                $("#btn-save-estimate-info").on('click', function() {
+                    //Call ajax submit form
+                    $.ajax({
+                        url: "@Html.Raw(Url.Action("AddProductToEstimate", "Estimate"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+
+                        }
+                    }).done(function( data ) {
+                        if (data.Success) {
+
+                        } else {
+
+                        }
+
+                    });
+
+                });
+            }
+        });
+    });
+</script>
