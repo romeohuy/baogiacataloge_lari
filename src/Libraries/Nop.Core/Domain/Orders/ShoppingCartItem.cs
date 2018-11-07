@@ -1,7 +1,7 @@
-using System;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Estimate;
+using System;
 
 namespace Nop.Core.Domain.Orders
 {
@@ -14,6 +14,10 @@ namespace Nop.Core.Domain.Orders
         /// Gets or sets the store identifier
         /// </summary>
         public int StoreId { get; set; }
+        /// <summary>
+        /// Gets or sets the estimate identifier
+        /// </summary>
+        public int? EstimateId { get; set; }
 
         /// <summary>
         /// Gets or sets the shopping cart type identifier
@@ -85,7 +89,10 @@ namespace Nop.Core.Domain.Orders
         /// </summary>
         public decimal Height { get; set; }
 
-        public int TypeEstimateStepId { get;set; }
+        public string UnitName { get; set; }
+        public int? HandPrint { get; set; }
+
+        public int TypeEstimateStepId { get; set; }
         public TypeEstimateStep TypeEstimateStep
         {
             get => (TypeEstimateStep)TypeEstimateStepId;

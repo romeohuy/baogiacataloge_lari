@@ -1,16 +1,12 @@
 ﻿// RTL Support provided by Credo inc (www.credo.co.il  ||   info@credo.co.il)
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Directory;
+using Nop.Core.Domain.Estimate;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
@@ -28,9 +24,63 @@ using Nop.Services.Orders;
 using Nop.Services.Payments;
 using Nop.Services.Stores;
 using Nop.Services.Vendors;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 namespace Nop.Services.Common
 {
+    public partial class ExportEstimateSummaryModel
+    {
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TongTienGiaCong")]
+        public string TongTienGiaCong { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TienBia")]
+        public string TienBia { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TienRuot")]
+        public string TienRuot { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TongTienHang")]
+        public string TongTienHang { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.LoiNhuan")]
+        public string LoiNhuan { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TienLoiNhuan")]
+        public string TienLoiNhuan { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.TongDonHang")]
+        public string TongDonHang { get; set; }
+        //[NopResourceDisplayName("Admin.EstimateInfo.Fields.DonGiaSanPham")]
+        public string DonGiaSanPham { get; set; }
+        public int TypeEstimateId { get; set; }
+
+        public TypeEstimate TypeEstimate
+        {
+            get => (TypeEstimate)TypeEstimateId;
+            set => TypeEstimateId = (int)value;
+        }
+
+    }
+
+    public partial class ExportShoppingCartItemModel
+    {
+
+        public string Total { get; set; }
+        public decimal TotalDec { get; set; }
+
+        public int TypeEstimateStepId { get; set; }
+        public TypeEstimateStep TypeEstimateStep
+        {
+            get => (TypeEstimateStep)TypeEstimateStepId;
+            set => TypeEstimateStepId = (int)value;
+        }
+
+        public int ShoppingCartTypeId { get; set; }
+
+        public ShoppingCartType ShoppingCartType
+        {
+            get => (ShoppingCartType)ShoppingCartTypeId;
+            set => ShoppingCartTypeId = (int)value;
+        }
+    }
     /// <summary>
     /// PDF service
     /// </summary>
@@ -181,10 +231,11 @@ namespace Nop.Services.Common
         /// <param name="resourceKey">Locale</param>
         /// <param name="lang">Language</param>
         /// <param name="font">Font</param>
+        /// <param name="extendStr"></param>
         /// <returns>PDF cell</returns>
-        protected virtual PdfPCell GetPdfCell(string resourceKey, Language lang, Font font)
+        protected virtual PdfPCell GetPdfCell(string resourceKey, Language lang, Font font, string extendStr = "")
         {
-            return new PdfPCell(new Phrase(_localizationService.GetResource(resourceKey, lang.Id), font));
+            return new PdfPCell(new Phrase(_localizationService.GetResource(resourceKey, lang.Id) + extendStr, font));
         }
 
         /// <summary>
@@ -1177,6 +1228,362 @@ namespace Nop.Services.Common
             return filePath;
         }
 
+        public virtual void PrintEstimateToPdf(Stream stream, EstimateInfo estimateInfo, IList<ShoppingCartItem> shoppingCartItems, int languageId = 0, int storeId = 0)
+        {
+            if (estimateInfo == null)
+                throw new ArgumentNullException(nameof(estimateInfo));
+            if (shoppingCartItems == null)
+                throw new ArgumentNullException(nameof(shoppingCartItems));
+
+            var pageSize = PageSize.A4;
+
+            if (_pdfSettings.LetterPageSizeEnabled)
+            {
+                pageSize = PageSize.Letter;
+            }
+
+            var doc = new Document(pageSize);
+            var pdfWriter = PdfWriter.GetInstance(doc, stream);
+            doc.Open();
+
+            //fonts
+            var titleFont = GetFont();
+            titleFont.SetStyle(Font.BOLD);
+            titleFont.Color = BaseColor.Black;
+            var font = GetFont();
+            var attributesFont = GetFont();
+            attributesFont.SetStyle(Font.ITALIC);
+
+            var pdfSettingsByStore = _settingService.LoadSetting<PdfSettings>(storeId);
+
+            var lang = _languageService.GetLanguageById(languageId);
+            if (lang == null || !lang.Published)
+                lang = _workContext.WorkingLanguage;
+
+            //header
+            PrintEstimateHeader(pdfSettingsByStore, lang, estimateInfo, font, titleFont, doc);
+
+            foreach (var typeEstimateStep in Enum.GetValues(typeof(TypeEstimateStep)).Cast<TypeEstimateStep>())
+            {
+                var typeEstimateStepId = (int)typeEstimateStep;
+                var items = shoppingCartItems.Where(_ => _.TypeEstimateStepId == typeEstimateStepId).ToList();
+                //products
+                PrintEstimateProducts(lang, titleFont, doc, estimateInfo.TypeEstimate, typeEstimateStep, items, font, attributesFont);
+
+
+                doc.NewPage();
+            }
+            ////totals
+            //PrintTotals(vendorId, lang, order, font, titleFont, doc);
+            PrintEstimateTotalSummary(estimateInfo, shoppingCartItems, lang, font, titleFont, doc);
+            ////footer
+            PrintFooter(pdfSettingsByStore, pdfWriter, pageSize, lang, font);
+            doc.Close();
+        }
+
+        protected virtual void PrintEstimateHeader(PdfSettings pdfSettingsByStore, Language lang, EstimateInfo estimateInfo, Font font, Font titleFont, Document doc)
+        {
+            //logo
+            var logoPicture = _pictureService.GetPictureById(pdfSettingsByStore.LogoPictureId);
+            var logoExists = logoPicture != null;
+
+            //header
+            var headerTable = new PdfPTable(logoExists ? 2 : 1)
+            {
+                RunDirection = GetDirection(lang)
+            };
+            headerTable.DefaultCell.Border = Rectangle.NO_BORDER;
+
+            //store info
+            var store = _storeContext.CurrentStore;
+            var anchor = new Anchor(store.Url.Trim('/'), font)
+            {
+                Reference = store.Url
+            };
+
+            var cellHeader = GetPdfCell(string.Format(_localizationService.GetResource("PDFEstimate.Number#", lang.Id), estimateInfo.NumberEstimate), titleFont);
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(anchor));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.CreatedDate", lang, font, _dateTimeHelper.ConvertToUserTime(estimateInfo.CreatedDate, DateTimeKind.Utc).ToString("D", new CultureInfo(lang.LanguageCulture))));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.HorizontalAlignment = Element.ALIGN_LEFT;
+            cellHeader.Border = Rectangle.NO_BORDER;
+
+            headerTable.AddCell(cellHeader);
+
+            if (logoExists)
+                headerTable.SetWidths(lang.Rtl ? new[] { 0.2f, 0.8f } : new[] { 0.8f, 0.2f });
+            headerTable.WidthPercentage = 100f;
+
+            //logo               
+            if (logoExists)
+            {
+                var logoFilePath = _pictureService.GetThumbLocalPath(logoPicture, 0, false);
+                var logo = Image.GetInstance(logoFilePath);
+                logo.Alignment = GetAlignment(lang, true);
+                logo.ScaleToFit(65f, 65f);
+
+                var cellLogo = new PdfPCell { Border = Rectangle.NO_BORDER };
+                cellLogo.AddElement(logo);
+                headerTable.AddCell(cellLogo);
+            }
+
+            doc.Add(headerTable);
+        }
+
+        protected virtual void PrintEstimateTotalSummary(EstimateInfo estimateInfo, IList<ShoppingCartItem> shoppingCartItems, Language lang, Font font, Font titleFont, Document doc)
+        {
+            var model = new ExportEstimateSummaryModel();
+            if (estimateInfo != null)
+            {
+
+                var shoppingCartItemModels = shoppingCartItems.Select(_ =>
+                {
+                    var shoppingCartItemModel = new ExportShoppingCartItemModel();
+                    shoppingCartItemModel.TypeEstimateStep = _.TypeEstimateStep;
+                    shoppingCartItemModel.TypeEstimateStepId = _.TypeEstimateStepId;
+                    if (_.Product.TypeProductPrint == TypeProductPrint.TinhTheoDonVi)
+                    {
+                        shoppingCartItemModel.Total = _priceFormatter.FormatPrice(_.Quantity * _.CustomerEnteredPrice, true, false);
+                        shoppingCartItemModel.TotalDec = _.Quantity * _.CustomerEnteredPrice;
+                    }
+                    else if (_.Product.TypeProductPrint == TypeProductPrint.TinhTheoDienTichMat)
+                    {
+                        shoppingCartItemModel.Total = _priceFormatter.FormatPrice(_.Length * _.Width * _.Quantity * _.CustomerEnteredPrice, true, false);
+                        shoppingCartItemModel.TotalDec = _.Length * _.Width * _.Quantity * _.CustomerEnteredPrice;
+                    }
+                    return shoppingCartItemModel;
+                });
+                var cartItemModels = shoppingCartItemModels as ExportShoppingCartItemModel[] ?? shoppingCartItemModels.ToArray();
+                var tienGiaCong = cartItemModels.Where(_ => _.TypeEstimateStep == TypeEstimateStep.ThanhPham).Sum(s => s.TotalDec);
+                var tienBia = cartItemModels.Where(_ => _.TypeEstimateStep == TypeEstimateStep.BiaTruocIn).Sum(s => s.TotalDec);
+                var tienRuot = cartItemModels.Where(_ => _.TypeEstimateStep == TypeEstimateStep.RuotTruocIn).Sum(s => s.TotalDec);
+                var tienHang = tienGiaCong + tienBia + tienRuot;
+                var tienLoiNhuan = tienHang * estimateInfo.ProfitPercent / 100;
+                var tongTien = tienLoiNhuan + tienHang;
+                var donGiaSanPham = tongTien / estimateInfo.TotalNumber;
+
+                estimateInfo.TotalEstimate = tongTien;
+                estimateInfo.TotalWithoutProfit = tienHang;
+                estimateInfo.TotalProfit = tienLoiNhuan;
+                estimateInfo.UnitPriceProductItem = donGiaSanPham;
+
+                model.LoiNhuan = estimateInfo.ProfitPercent.ToString(CultureInfo.InvariantCulture);
+                model.TienLoiNhuan = _priceFormatter.FormatPrice(tienLoiNhuan, true, false);
+                model.TienBia = _priceFormatter.FormatPrice(tienBia, true, false);
+                model.TienRuot = _priceFormatter.FormatPrice(tienRuot, true, false);
+                model.TongTienGiaCong = _priceFormatter.FormatPrice(tienGiaCong, true, false);
+                model.DonGiaSanPham = _priceFormatter.FormatPrice(donGiaSanPham, true, false);
+                model.TongDonHang = _priceFormatter.FormatPrice(tongTien, true, false);
+
+
+                //subtotal
+                var totalsTable = new PdfPTable(1)
+                {
+                    RunDirection = GetDirection(lang),
+                    WidthPercentage = 100f
+                };
+                totalsTable.DefaultCell.Border = Rectangle.NO_BORDER;
+
+
+                var p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TongTienGiaCong", lang.Id)} {model.TongTienGiaCong}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TienBia", lang.Id)} {model.TienBia}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TienRuot", lang.Id)} {model.TienRuot}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TongTienHang", lang.Id)} {model.TongTienHang}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.LoiNhuan", lang.Id)} {model.LoiNhuan}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TienLoiNhuan", lang.Id)} {model.TienLoiNhuan}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.TongDonHang", lang.Id)} {model.TongDonHang}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+
+                p = GetPdfCell($"{_localizationService.GetResource("PDFEstimate.Summary.DonGiaSanPham", lang.Id)} {model.DonGiaSanPham}", font);
+                p.HorizontalAlignment = Element.ALIGN_RIGHT;
+                p.Border = Rectangle.NO_BORDER;
+                totalsTable.AddCell(p);
+            }
+        }
+        protected virtual void PrintEstimateProducts(Language lang, Font titleFont, Document doc, TypeEstimate typeEstimate, TypeEstimateStep typeEstimateStep, IList<ShoppingCartItem> shoppingCartItems, Font font, Font attributesFont)
+        {
+            var productsHeader = new PdfPTable(1)
+            {
+                RunDirection = GetDirection(lang),
+                WidthPercentage = 100f
+            };
+
+            var cellProducts = GetPdfCell("PDFEstimate.Product(s)", lang, titleFont, $" {typeEstimateStep.ToLocalizationName()}");
+            if (typeEstimate == TypeEstimate.CatalogueCoRuot)
+            {
+                if (typeEstimateStep == TypeEstimateStep.Ruot || typeEstimateStep == TypeEstimateStep.RuotTruocIn)
+                {
+                    var item = shoppingCartItems.FirstOrDefault();
+
+                    var extendStr = $" {typeEstimateStep.ToLocalizationName()} - {_localizationService.GetResource("PDFEstimate.HandPrint")}: {(item != null ? item.HandPrint.ToString() : string.Empty)}";
+                    cellProducts = GetPdfCell("PDFEstimate.Product(s)", lang, titleFont, extendStr);
+                }
+            }
+            else
+            {
+                cellProducts = GetPdfCell("PDFEstimate.Product(s)", lang, titleFont, $" {typeEstimateStep.ToLocalizationName()}");
+            }
+            cellProducts.Border = Rectangle.NO_BORDER;
+            productsHeader.AddCell(cellProducts);
+            doc.Add(productsHeader);
+            doc.Add(new Paragraph(" "));
+
+            var count = 6; // 6 columns same this file excel template.
+            if (typeEstimateStep == TypeEstimateStep.Bia || typeEstimateStep == TypeEstimateStep.Ruot)
+            {
+                count = 4;
+            }
+            var productsTable = new PdfPTable(count)
+            {
+                RunDirection = GetDirection(lang),
+                WidthPercentage = 100f
+            };
+
+            var widths = new Dictionary<int, int[]>
+            {
+                { 4, new[] { 50, 20, 10, 20 } },
+                { 5, new[] { 45, 15, 15, 10, 15 } },
+                { 6, new[] { 40, 13, 13, 12, 10, 12 } }
+            };
+
+            productsTable.SetWidths(widths[count]);
+
+            //var cellProductItem = GetPdfCell("PDFEstimate.NumberSortOrder", lang, font);
+            //cellProductItem.BackgroundColor = BaseColor.LightGray;
+            //cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            //productsTable.AddCell(cellProductItem);
+
+            //product name
+            var cellProductItem = GetPdfCell("PDFEstimate.ProductName", lang, font);
+            cellProductItem.BackgroundColor = BaseColor.LightGray;
+            cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            productsTable.AddCell(cellProductItem);
+
+            //Description
+            cellProductItem = GetPdfCell("PDFEstimate.Description", lang, font);
+            cellProductItem.BackgroundColor = BaseColor.LightGray;
+            cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            productsTable.AddCell(cellProductItem);
+
+            //UnitName
+            cellProductItem = GetPdfCell("PDFEstimate.UnitName", lang, font);
+            cellProductItem.BackgroundColor = BaseColor.LightGray;
+            cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            productsTable.AddCell(cellProductItem);
+
+            //qty
+            cellProductItem = GetPdfCell("PDFEstimate.ProductQuantity", lang, font);
+            cellProductItem.BackgroundColor = BaseColor.LightGray;
+            cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            productsTable.AddCell(cellProductItem);
+
+
+            if (typeEstimateStep != TypeEstimateStep.Bia && typeEstimateStep != TypeEstimateStep.Ruot)
+            {
+                //UnitPrice
+                cellProductItem = GetPdfCell("PDFEstimate.UnitPrice", lang, font);
+                cellProductItem.BackgroundColor = BaseColor.LightGray;
+                cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+                productsTable.AddCell(cellProductItem);
+
+                //total
+                cellProductItem = GetPdfCell("PDFEstimate.ProductTotal", lang, font);
+                cellProductItem.BackgroundColor = BaseColor.LightGray;
+                cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+                productsTable.AddCell(cellProductItem);
+            }
+
+
+            foreach (var shoppingCartItem in shoppingCartItems)
+            {
+                var p = shoppingCartItem.Product;
+
+                var pAttribTable = new PdfPTable(1) { RunDirection = GetDirection(lang) };
+                pAttribTable.DefaultCell.Border = Rectangle.NO_BORDER;
+
+                //product name
+                var name = _localizationService.GetLocalized(p, x => x.Name, lang.Id);
+                pAttribTable.AddCell(new Paragraph(name, font));
+                cellProductItem.AddElement(new Paragraph(name, font));
+                productsTable.AddCell(pAttribTable);
+
+                //desc
+                var desc = _localizationService.GetLocalized(p, x => x.ShortDescription, lang.Id);
+                pAttribTable.AddCell(new Paragraph(desc, font));
+                cellProductItem.AddElement(new Paragraph(desc, font));
+                productsTable.AddCell(pAttribTable);
+
+                //UnitName
+                if (p.UnitName == null)
+                {
+                    p.UnitName = string.Empty;
+                }
+                cellProductItem = GetPdfCell(p.UnitName, font);
+                cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+                productsTable.AddCell(cellProductItem);
+
+
+                //qty
+                cellProductItem = GetPdfCell(shoppingCartItem.Quantity, font);
+                cellProductItem.HorizontalAlignment = Element.ALIGN_LEFT;
+                productsTable.AddCell(cellProductItem);
+
+                if (typeEstimateStep != TypeEstimateStep.Bia && typeEstimateStep != TypeEstimateStep.Ruot)
+                {
+                    //price
+                    string unitPrice = _priceFormatter.FormatPrice(shoppingCartItem.CustomerEnteredPrice, true, false);
+                    cellProductItem = GetPdfCell(unitPrice, font);
+                    cellProductItem.HorizontalAlignment = Element.ALIGN_LEFT;
+                    productsTable.AddCell(cellProductItem);
+
+                    //total
+                    string subTotal = null;
+                    if (p.TypeProductPrint == TypeProductPrint.TinhTheoDonVi)
+                    {
+                        subTotal = _priceFormatter.FormatPrice(shoppingCartItem.Quantity * shoppingCartItem.CustomerEnteredPrice, true, false);
+                    }
+                    else if (p.TypeProductPrint == TypeProductPrint.TinhTheoDienTichMat)
+                    {
+                        subTotal = _priceFormatter.FormatPrice(shoppingCartItem.Length * shoppingCartItem.Width * shoppingCartItem.Quantity * shoppingCartItem.CustomerEnteredPrice, true, false);
+                    }
+
+                    cellProductItem = GetPdfCell(subTotal, font);
+                    cellProductItem.HorizontalAlignment = Element.ALIGN_LEFT;
+                    productsTable.AddCell(cellProductItem);
+                }
+            }
+
+            doc.Add(productsTable);
+        }
         /// <summary>
         /// Print orders to PDF
         /// </summary>
@@ -1627,4 +2034,5 @@ namespace Nop.Services.Common
 
         #endregion
     }
+
 }

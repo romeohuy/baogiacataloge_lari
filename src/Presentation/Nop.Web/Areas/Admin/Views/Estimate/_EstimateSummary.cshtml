@@ -1,0 +1,134 @@
+﻿@using Nop.Core.Domain.Estimate
+@using Nop.Services
+@model EstimateSummaryModel
+<div id="estimate-info" class="row">
+
+    <div class="col-md-12">
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="TongTienGiaCong" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="TongTienGiaCong" disabled="disabled" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="TienBia" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="TienBia" disabled="disabled" />
+            </div>
+        </div>
+        @if (Model.TypeEstimate == TypeEstimate.CatalogueCoRuot)
+        {
+            <div class="form-group">
+                <div class="col-md-4">
+                    <nop-label asp-for="TienRuot" />
+                </div>
+                <div class="col-md-8">
+                    <input asp-for="TienRuot" disabled="disabled" />
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="LoiNhuan" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="LoiNhuan" disabled="disabled" /><span>%</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="TienLoiNhuan" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="TienLoiNhuan" disabled="disabled" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="TongDonHang" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="TongDonHang" disabled="disabled" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-4">
+                <nop-label asp-for="DonGiaSanPham" />
+            </div>
+            <div class="col-md-8">
+                <input asp-for="DonGiaSanPham" disabled="disabled" />
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-xs-6 text-right">
+        <button id="btn-calculate-estimate-info" class="btn btn-success" type="button">@T("Admin.Common.EstimateInfo.CalculateSummary")</button>
+    </div>
+    <div class="col-md-6 col-xs-6">
+        <button id="btn-export-estimate-info" class="btn btn-primary" type="button"><i class="fa fa-file-pdf-o"></i> @T("Admin.Common.EstimateInfo.ExportEstimate")</button>
+    </div>
+</div>
+<script>
+    $(function() {
+
+        $("#btn-calculate-estimate-info").on('click', function() {
+            //Call ajax submit form
+
+            var postData = {
+                id: $('#EstimateInfoId').val()
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                url: "@Html.Raw(Url.Action("CalculateEstimateInfo", "Estimate"))",
+                type: "POST",
+                dataType: "json",
+                data: postData
+
+            }).done(function( result ) {
+                if (result.Success) {
+                    var data = result.Data;
+                    $("#@Html.IdFor(m=>m.TongTienGiaCong)").val(data.TongTienGiaCong);
+                    $("#@Html.IdFor(m=>m.TienBia)").val(data.TienBia);
+                    $("#@Html.IdFor(m=>m.TienRuot)").val(data.TienRuot);
+                    $("#@Html.IdFor(m=>m.TongTienHang)").val(data.TongTienHang);
+                    $("#@Html.IdFor(m=>m.LoiNhuan)").val(data.LoiNhuan);
+                    $("#@Html.IdFor(m=>m.TienLoiNhuan)").val(data.TienLoiNhuan);
+                    $("#@Html.IdFor(m=>m.TongDonHang)").val(data.TongDonHang);
+                    $("#@Html.IdFor(m=>m.DonGiaSanPham)").val(data.DonGiaSanPham);
+                } else {
+                    alert('Dữ liệu không hợp lệ.');
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
+
+<form asp-controller="Estimate" asp-action="ExportPdfEstimate" method="post" id="export-pdf-estimate-form">
+    <input type="hidden" id="selectedId" name="selectedId" value="" />
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#btn-export-estimate-info').click(function (e) {
+            e.preventDefault();
+            var id = $("#EstimateInfoId").val();
+            $('#export-pdf-estimate-form #selectedId').val(id);
+            $('#export-pdf-estimate-form').submit();
+            return false;
+        });
+    });
+</script>

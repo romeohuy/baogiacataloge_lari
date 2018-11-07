@@ -48,22 +48,22 @@
                                 <nop-editor asp-for="UnitName" />
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-4">
-                                <nop-label asp-for="Length" />
+                        @*<div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Length" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Length" />
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <nop-editor asp-for="Length" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-4">
-                                <nop-label asp-for="Width" />
-                            </div>
-                            <div class="col-md-8">
-                                <nop-editor asp-for="Width" />
-                            </div>
-                        </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Width" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Width" />
+                                </div>
+                            </div>*@
                         <div class="form-group">
                             <div class="col-md-4">
                                 <nop-label asp-for="Quantity" />
@@ -83,7 +83,7 @@
                     </div>
                     <hr />
                     <div class="col-md-12 col-xs-12 text-right">
-                        <button id="btn-add-product-estimate" class="btn btn-primary" type="button"><i class="fa fa-save"></i> @T("Common.EstimateInfo.AddProduct")</button>
+                        <button id="btn-add-product-truocin-estimate" class="btn btn-primary" type="button"><i class="fa fa-save"></i> @T("Common.EstimateInfo.AddProduct")</button>
                     </div>
                 </div>
             </div>
@@ -92,13 +92,13 @@
 </div>
 <script>
     $(function() {
-        $("#btn-add-product-estimate").on('click', function() {
+        $("#btn-add-product-truocin-estimate").on('click', function() {
 
             var postData = {
                 ProductId: $("#@Html.IdFor(m => m.ProductId)").val(),
                 ShoppingCartItemId: $("#@Html.IdFor(m => m.ShoppingCartItemId)").val(),
-                Length: $("#@Html.IdFor(m => m.Length)").val(),
-                Width: $("#@Html.IdFor(m => m.Width)").val(),
+                @*Length: $("#@Html.IdFor(m => m.Length)").val(),
+                Width: $("#@Html.IdFor(m => m.Width)").val(),*@
                 UnitName: $("#@Html.IdFor(m => m.UnitName)").val(),
                 Quantity: $("#@Html.IdFor(m => m.Quantity)").val(),
                 CustomerEnteredPrice: $("#@Html.IdFor(m => m.CustomerEnteredPrice)").val(),
@@ -115,9 +115,9 @@
                 dataType: "json",
                 data: postData
             }).done(function( data ) {
-                $("#product-bia-info").html('');
-                var gridProductBia = $('#estimate-product-bia-grid').data('kendoGrid');
-                gridProductBia.dataSource.page(1); //new search. Set page size to 1
+                $("#product-bia-truocin-info").html('');
+                var gridProductBiaTruocIn = $('#estimate-product-bia-truocin-grid').data('kendoGrid');
+                gridProductBiaTruocIn.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 return false;
             });

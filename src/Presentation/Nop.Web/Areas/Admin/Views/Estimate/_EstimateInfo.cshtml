@@ -4,8 +4,8 @@
 <form asp-controller="Estimate" asp-action="EstimateInfoCreate" method="post" id="estimate-info-form">
     <div id="estimate-info" class="row">
 
-        <input id="@Html.IdFor(model => model.Id)" name="@Html.IdFor(model => model.Id)" type="hidden" value="@Model.Id" />
-        <input id="@Html.IdFor(model => model.CustomerId)" name="@Html.IdFor(model => model.CustomerId)" type="hidden" value="@Model.CustomerId" />
+        <input asp-for="Id" type="hidden" id="EstimateInfo@(Html.IdFor(model => model.Id))" />
+        <input asp-for="CustomerId" type="hidden" />
         <div class="col-md-6">
             <div class="form-group">
                 <div class="col-md-4">
@@ -76,6 +76,14 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4">
+                    <nop-label asp-for="ProfitPercent" />
+                </div>
+                <div class="col-md-8">
+                    <nop-editor asp-for="ProfitPercent" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-4">
                     <nop-label asp-for="TotalNumber" />
                 </div>
                 <div class="col-md-8">
@@ -84,10 +92,10 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4">
-                    <nop-label asp-for="UnitName" />
+                    <nop-label asp-for="UnitNameNote" />
                 </div>
                 <div class="col-md-8">
-                    <nop-editor asp-for="UnitName" />
+                    <nop-editor asp-for="UnitNameNote" />
                 </div>
             </div>
             <div class="form-group">
@@ -121,10 +129,10 @@
     <hr />
     <div class="row">
         <div class="col-md-6 col-xs-6">
-            <button id="btn-save-estimate-info" class="btn btn-success btn-lg btn-block" type="button">@T("Common.EstimateInfo.Save")</button>
+            <button id="btn-save-estimate-info" class="btn btn-success btn-lg btn-block" type="button">@T("Admin.Common.EstimateInfo.Save")</button>
         </div>
         <div class="col-md-6 col-xs-6">
-            <button id="btn-reset-info" class="btn btn-danger btn-lg btn-block" type="button">@T("Common.EstimateInfo.ResetInfo")</button>
+            <button id="btn-reset-info" class="btn btn-danger btn-lg btn-block" type="button">@T("Admin.Common.EstimateInfo.ResetInfo")</button>
         </div>
     </div>
 </form>
@@ -161,19 +169,20 @@
             //Call ajax submit form
 
             var postData = {
-                Id: $('#@Html.IdFor(model => model.Id)').val(),
+                Id: $('#EstimateInfo@(Html.IdFor(model => model.Id))').val(),
                 CustomerId: $('#@Html.IdFor(model => model.CustomerId)').val(),
                 CustomerFirstName: $('#@Html.IdFor(model => model.CustomerFirstName)').val(),
                 CustomerLastName: $('#@Html.IdFor(model => model.CustomerLastName)').val(),
                 CustomerPhone: $('#@Html.IdFor(model => model.CustomerPhone)').val(),
                 NumberEstimate: $('#@Html.IdFor(model => model.NumberEstimate)').val(),
                 Title: $('#@Html.IdFor(model => model.Title)').val(),
-                UnitName: $('#@Html.IdFor(model => model.UnitName)').val(),
+                UnitNameNote: $('#@Html.IdFor(model => model.UnitNameNote)').val(),
                 TotalNumber: $('#@Html.IdFor(model => model.TotalNumber)').val(),
                 ProductTypeName: $('#@Html.IdFor(model => model.ProductTypeName)').val(),
                 ProductName: $('#@Html.IdFor(model => model.ProductName)').val(),
                 ExtendNote: $('#@Html.IdFor(model => model.ExtendNote)').val(),
                 CreatedDate: $('#@Html.IdFor(model => model.CreatedDate)').val(),
+                ProfitPercent: $('#@Html.IdFor(model => model.ProfitPercent)').val(),
                 TypeEstimateId: $('#@Html.IdFor(model => model.TypeEstimateId)').val()
             };
             addAntiForgeryToken(postData);
@@ -185,7 +194,7 @@
 
             }).done(function( data ) {
                 if (data.Success) {
-                    $("#@Html.IdFor(model=>model.Id)").val(data.EstimateInfoId);
+                    $("#EstimateInfo@(Html.IdFor(model => model.Id))").val(data.EstimateInfoId);
                     $("#collapseBia").collapse('show');
                 } else {
                     alert('Dữ liệu không hợp lệ.');
@@ -215,7 +224,7 @@
         $('#@Html.IdFor(model => model.CustomerPhone)').val('');
         $('#@Html.IdFor(model => model.NumberEstimate)').val('');
         $('#@Html.IdFor(model => model.Title)').val('');
-        $('#@Html.IdFor(model => model.UnitName)').val('');
+        $('#@Html.IdFor(model => model.UnitNameNote)').val('');
         $('#@Html.IdFor(model => model.TotalNumber)').val('');
         $('#@Html.IdFor(model => model.ProductTypeName)').val('');
         $('#@Html.IdFor(model => model.ProductName)').val('');

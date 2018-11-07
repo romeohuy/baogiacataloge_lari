@@ -83,7 +83,7 @@
                     </div>
                     <hr />
                     <div class="col-md-12 col-xs-12 text-right">
-                        <button id="btn-add-product-estimate" class="btn btn-primary" type="button"><i class="fa fa-save"></i> @T("Common.EstimateInfo.AddProduct")</button>
+                        <button id="btn-add-product-thanhpham-estimate" class="btn btn-primary" type="button"><i class="fa fa-save"></i> @T("Common.EstimateInfo.AddProduct")</button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
 </div>
 <script>
     $(function() {
-        $("#btn-add-product-estimate").on('click', function() {
+        $("#btn-add-product-thanhpham-estimate").on('click', function() {
 
             var postData = {
                 ProductId: $("#@Html.IdFor(m => m.ProductId)").val(),
@@ -115,8 +115,8 @@
                 dataType: "json",
                 data: postData
             }).done(function( data ) {
-                $("#product-bia-info").html('');
-                var gridProductBia = $('#estimate-product-bia-grid').data('kendoGrid');
+                $("#product-thanhpham-info").html('');
+                var gridProductBia = $('#estimate-product-thanhpham-grid').data('kendoGrid');
                 gridProductBia.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 return false;

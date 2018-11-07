@@ -24,8 +24,8 @@ namespace Nop.Web.Areas.Admin.Models.Estimate
         public string NumberEstimate { get; set; }
         [NopResourceDisplayName("Admin.EstimateInfo.Fields.Title")]
         public string Title { get; set; }
-        [NopResourceDisplayName("Admin.EstimateInfo.Fields.UnitName")]
-        public string UnitName { get; set; }
+        [NopResourceDisplayName("Admin.EstimateInfo.Fields.UnitNameNote")]
+        public string UnitNameNote { get; set; }
         [NopResourceDisplayName("Admin.EstimateInfo.Fields.TotalNumber")]
         public int TotalNumber { get; set; }
         [NopResourceDisplayName("Admin.EstimateInfo.Fields.ProductTypeName")]
@@ -37,6 +37,16 @@ namespace Nop.Web.Areas.Admin.Models.Estimate
         [NopResourceDisplayName("Admin.EstimateInfo.Fields.CreatedDate")]
         [UIHint("Date")]
         public DateTime CreatedDate { get; set; }
+
+        [NopResourceDisplayName("Admin.EstimateInfo.Fields.TotalWithoutProfit")]
+        public decimal TotalWithoutProfit { get; set; }
+        [NopResourceDisplayName("Admin.EstimateInfo.Fields.ProfitPercent")]
+        public decimal ProfitPercent { get; set; }
+        [NopResourceDisplayName("Admin.EstimateInfo.Fields.TotalEstimate")]
+        public decimal TotalEstimate { get; set; }
+        [NopResourceDisplayName("Admin.EstimateInfo.Fields.UnitPriceProductItem")]
+        public decimal UnitPriceProductItem { get; set; }
+
         [NopResourceDisplayName("Admin.EstimateInfo.Fields.TypeEstimateId")]
         public int TypeEstimateId { get; set; }
 

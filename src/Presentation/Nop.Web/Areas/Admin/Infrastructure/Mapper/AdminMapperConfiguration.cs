@@ -55,6 +55,7 @@ using Nop.Web.Areas.Admin.Models.Plugins;
 using Nop.Web.Areas.Admin.Models.Polls;
 using Nop.Web.Areas.Admin.Models.Settings;
 using Nop.Web.Areas.Admin.Models.Shipping;
+using Nop.Web.Areas.Admin.Models.ShoppingCart;
 using Nop.Web.Areas.Admin.Models.Stores;
 using Nop.Web.Areas.Admin.Models.Tasks;
 using Nop.Web.Areas.Admin.Models.Tax;
@@ -1006,6 +1007,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(settings => settings.GroupTierPricesForDistinctShoppingCartItems, options => options.Ignore())
                 .ForMember(settings => settings.RenderAssociatedAttributeValueQuantity, options => options.Ignore())
                 .ForMember(settings => settings.RoundPricesDuringCalculation, options => options.Ignore());
+
+            CreateMap<ShoppingCartItem, ShoppingCartItemModel>();
         }
 
         /// <summary>

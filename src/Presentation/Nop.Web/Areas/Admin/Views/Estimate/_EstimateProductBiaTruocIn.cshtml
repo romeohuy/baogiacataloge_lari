@@ -1,3 +1,169 @@
 ﻿@using Nop.Core.Domain.Estimate
 @using Nop.Services
 @model ProductByTypeEstimateStepModel
+
+<div class="row">
+    <div class="col-md-2">
+        <nop-label asp-for="ProductItems" />
+    </div>
+    <div class="col-md-8 mb-3">
+        <nop-select class="ProductItems-truocin" asp-for="ProductItems" asp-items="@Model.ProductItems" />
+    </div>
+    <div class="col-md-2 mb-3">
+        <button id="btnSelectProductBiaTruocIn" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
+    </div>
+</div>
+<div id="product-bia-truocin-info"></div>
+<script>
+    $(function() {
+        $("#btnSelectProductBiaTruocIn").on('click', function() {
+            var productId = $(".ProductItems-truocin").val();
+            var estimateId = $("#EstimateInfoId").val();
+            if (productId === '0') {
+                alert('Vui lòng chọn sản phẩm.');
+            } else {
+                //Call ajax submit form
+                $.ajax({
+                    url: "@Html.Raw(Url.Action("EstimateLoadProduct", "Estimate"))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken({
+                        productId: productId,
+                        estimateId: estimateId,
+                        typeEstimateStepId: @((int)TypeEstimateStep.BiaTruocIn)
+                    })
+                }).done(function( result ) {
+                    if (result.Success) {
+                        $("#product-bia-truocin-info").html(result.Data);
+                    }
+                });
+            }
+        });
+    });
+</script>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div id="estimate-product-bia-truocin-grid"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#estimate-product-bia-truocin-grid").kendoGrid({
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ListShoppingCartItems", "Estimate"))",
+                            type: "POST",
+                            dataType: "json",
+                            data: function() {
+                                var data = {
+                                    estimateInfoId: $("#EstimateInfoId").val(),
+                                    customerId: $("#CustomerId").val(),
+                                    typeEstimateStepId: "@((int)TypeEstimateStep.BiaTruocIn)"
+                                };
+                                addAntiForgeryToken(data);
+                                return data;
+                            }
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: 100,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: 100,
+                    @await Html.PartialAsync("_GridPagerMessages")
+                },
+                editable: {
+                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                    mode: "inline"
+                },
+                scrollable: false,
+                    columns: [
+                        {
+                            field: "ProductName",
+                            title: "@T("Admin.CurrentCarts.ProductName")"
+                        },
+                        {
+                            field: "ShortDescription",
+                            title: "@T("Admin.CurrentCarts.ShortDescription")"
+                        }, {
+                        field: "UnitName",
+                        title: "@T("Admin.CurrentCarts.UnitName")",
+                        width: 100
+                    }, {
+                        field: "UnitPrice",
+                        title: "@T("Admin.CurrentCarts.UnitPrice")",
+                        width: 100
+                    }, {
+                        field: "Quantity",
+                        title: "@T("Admin.CurrentCarts.Quantity")",
+                        width: 100
+                    }, {
+                        field: "Total",
+                        title: "@T("Admin.CurrentCarts.Total")",
+                        width: 100
+                    }, {
+                        field: "Id",
+                        title: "@T("Admin.Common.Action")",
+                        width: 150,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                            template: '<button type="button" onclick="editShoppingCartItemBiaTruocIn(#=Id#);" class="btn-edit-shopping-cart-item btn btn-sm btn-primary" ><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>'+
+                            '<button type="button" onclick="deleteShoppingCartItemBiaTruocIn(#=Id#);" class="btn-delete-shopping-cart-item btn btn-sm btn-danger" ><i class="fa fa-pencil"></i>@T("Admin.Common.Delete")</button>'
+                    }
+                ]
+            });
+        });
+
+        function editShoppingCartItemBiaTruocIn(shoppingCartItemId) {
+            if (shoppingCartItemId > 0) {
+                $.ajax({
+                    url: "@Html.Raw(Url.Action("GetShoppingCartItem", "Estimate"))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken({
+                        id: shoppingCartItemId
+                    })
+                }).done(function( result ) {
+                    if (result.Success) {
+                        $("#product-bia-truocin-info").html(result.Data);
+                    }
+                });
+            }
+        }
+
+        function deleteShoppingCartItemBiaTruocIn(shoppingCartItemId) {
+            if (shoppingCartItemId > 0) {
+                $.ajax({
+                    url: "@Html.Raw(Url.Action("DeleteShoppingCartItem", "Estimate"))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken({
+                        id: shoppingCartItemId
+                    })
+                }).done(function( result ) {
+                    var gridProductBiaTruocIn = $('#estimate-product-bia-truocin-grid').data('kendoGrid');
+                    gridProductBiaTruocIn.dataSource.page(1);
+                    return false;
+                });
+            }
+        }
+    </script>
+
+
+</div>

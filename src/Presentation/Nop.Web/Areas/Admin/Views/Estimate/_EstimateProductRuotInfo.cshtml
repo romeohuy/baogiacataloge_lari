@@ -104,6 +104,7 @@
                 CustomerEnteredPrice: $("#@Html.IdFor(m => m.CustomerEnteredPrice)").val(),
                 EstimateId: $("#@Html.IdFor(m => m.EstimateId)").val(),
                 TypeEstimateStepId: $("#@Html.IdFor(m => m.TypeEstimateStepId)").val(),
+                HandPrint: $("#HandPrints").val(),
                 CustomerId: $("#CustomerId").val()
             };
 
@@ -115,9 +116,9 @@
                 dataType: "json",
                 data: postData
             }).done(function( data ) {
-                $("#product-bia-info").html('');
-                var gridProductBia = $('#estimate-product-bia-grid').data('kendoGrid');
-                gridProductBia.dataSource.page(1); //new search. Set page size to 1
+                $("#product-ruot-info").html('');
+                var gridProductRuot = $('#estimate-product-ruot-grid').data('kendoGrid');
+                gridProductRuot.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 return false;
             });

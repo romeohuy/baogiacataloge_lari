@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -22,6 +18,10 @@ using Nop.Services.Seo;
 using Nop.Services.Shipping;
 using Nop.Services.Shipping.Date;
 using Nop.Services.Stores;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 
 namespace Nop.Services.Orders
 {
@@ -121,6 +121,31 @@ namespace Nop.Services.Orders
         #endregion
 
         #region Methods
+
+        public ShoppingCartItem GetShoppingCartItemById(int id)
+        {
+            return _sciRepository.GetById(id);
+        }
+
+        public IList<ShoppingCartItem> GetShoppingCartItems(int estimateInfoId, int customerId, int typeEstimateStepId)
+        {
+            var query = _sciRepository.Table;
+            if (estimateInfoId > 0)
+            {
+                query = query.Where(_ => _.EstimateId == estimateInfoId);
+            }
+            if (customerId > 0)
+            {
+                query = query.Where(_ => _.CustomerId == customerId);
+            }
+
+            if (typeEstimateStepId > 0)
+            {
+                query = query.Where(_ => _.TypeEstimateStepId == typeEstimateStepId);
+            }
+
+            return query.ToList();
+        }
 
         /// <summary>
         /// Delete shopping cart item
@@ -442,7 +467,7 @@ namespace Nop.Services.Orders
                                     warnings.Add(string.Format(_localizationService.GetResource("ShoppingCart.QuantityExceedsStock"), maximumQuantityCanBeAdded));
                             }
                         }
-                        
+
                         break;
                     case ManageInventoryMethod.ManageStockByAttributes:
                         var combination = _productAttributeParser.FindProductAttributeCombination(product, attributesXml);
@@ -480,7 +505,7 @@ namespace Nop.Services.Orders
                                 warnings.Add(warning);
                             }
                         }
-                        
+
                         break;
                     default:
                         break;
@@ -499,15 +524,15 @@ namespace Nop.Services.Orders
                 }
             }
 
-            if (!product.AvailableEndDateTimeUtc.HasValue || availableStartDateError) 
+            if (!product.AvailableEndDateTimeUtc.HasValue || availableStartDateError)
                 return warnings;
-           
+
             var availableEndDateTime = DateTime.SpecifyKind(product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);
             if (availableEndDateTime.CompareTo(DateTime.UtcNow) < 0)
             {
                 warnings.Add(_localizationService.GetResource("ShoppingCart.NotAvailable"));
             }
-            
+
             return warnings;
         }
 
@@ -583,14 +608,14 @@ namespace Nop.Services.Orders
                     //selected product attributes
                     foreach (var a1 in attributes1)
                     {
-                        if (a1.Id != a2.Id) 
+                        if (a1.Id != a2.Id)
                             continue;
 
                         var attributeValuesStr = _productAttributeParser.ParseValues(attributesXml, a1.Id);
 
                         foreach (var str1 in attributeValuesStr)
                         {
-                            if (string.IsNullOrEmpty(str1.Trim())) 
+                            if (string.IsNullOrEmpty(str1.Trim()))
                                 continue;
 
                             found = true;
@@ -610,9 +635,9 @@ namespace Nop.Services.Orders
                     }
                 }
 
-                if (a2.AttributeControlType != AttributeControlType.ReadonlyCheckboxes) 
+                if (a2.AttributeControlType != AttributeControlType.ReadonlyCheckboxes)
                     continue;
-                
+
                 //customers cannot edit read-only attributes
                 var allowedReadOnlyValueIds = _productAttributeService.GetProductAttributeValues(a2.Id)
                     .Where(x => x.IsPreSelected)
@@ -656,12 +681,12 @@ namespace Nop.Services.Orders
                 }
 
                 //maximum length
-                if (!pam.ValidationMaxLength.HasValue) 
+                if (!pam.ValidationMaxLength.HasValue)
                     continue;
 
-                if (pam.AttributeControlType != AttributeControlType.TextBox && pam.AttributeControlType != AttributeControlType.MultilineTextbox) 
+                if (pam.AttributeControlType != AttributeControlType.TextBox && pam.AttributeControlType != AttributeControlType.MultilineTextbox)
                     continue;
-                
+
                 enteredText = _productAttributeParser.ParseValues(attributesXml, pam.Id).FirstOrDefault();
                 enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
@@ -678,7 +703,7 @@ namespace Nop.Services.Orders
             var attributeValues = _productAttributeParser.ParseProductAttributeValues(attributesXml);
             foreach (var attributeValue in attributeValues)
             {
-                if (attributeValue.AttributeValueType != AttributeValueType.AssociatedToProduct) 
+                if (attributeValue.AttributeValueType != AttributeValueType.AssociatedToProduct)
                     continue;
 
                 if (ignoreNonCombinableAttributes && attributeValue.ProductAttributeMapping.IsNonCombinable())
@@ -726,7 +751,7 @@ namespace Nop.Services.Orders
             var warnings = new List<string>();
 
             //gift cards
-            if (!product.IsGiftCard) 
+            if (!product.IsGiftCard)
                 return warnings;
 
             _productAttributeParser.GetGiftCardAttribute(attributesXml, out var giftCardRecipientName, out var giftCardRecipientEmail, out var giftCardSenderName, out var giftCardSenderEmail, out var _);
@@ -744,7 +769,7 @@ namespace Nop.Services.Orders
             if (string.IsNullOrEmpty(giftCardSenderName))
                 warnings.Add(_localizationService.GetResource("ShoppingCart.SenderNameError"));
 
-            if (product.GiftCardType != GiftCardType.Virtual) 
+            if (product.GiftCardType != GiftCardType.Virtual)
                 return warnings;
 
             //validate for virtual gift cards only
@@ -802,7 +827,7 @@ namespace Nop.Services.Orders
             var startDateUtc = _dateTimeHelper.ConvertToUtcTime(rentalStartDate.Value, _dateTimeHelper.DefaultStoreTimeZone);
             //but we what if dates should be entered in a customer timezone?
             //DateTime startDateUtc = _dateTimeHelper.ConvertToUtcTime(rentalStartDate.Value, _dateTimeHelper.CurrentTimeZone);
-            if (todayDtUtc.CompareTo(startDateUtc) <= 0) 
+            if (todayDtUtc.CompareTo(startDateUtc) <= 0)
                 return warnings;
 
             warnings.Add(_localizationService.GetResource("ShoppingCart.Rental.StartDateShouldBeFuture"));
@@ -912,7 +937,7 @@ namespace Nop.Services.Orders
             }
 
             //validate checkout attributes
-            if (!validateCheckoutAttributes) 
+            if (!validateCheckoutAttributes)
                 return warnings;
 
             //selected attributes
@@ -931,14 +956,14 @@ namespace Nop.Services.Orders
 
             foreach (var a2 in attributes2)
             {
-                if (!a2.IsRequired) 
+                if (!a2.IsRequired)
                     continue;
 
                 var found = false;
                 //selected checkout attributes
                 foreach (var a1 in attributes1)
                 {
-                    if (a1.Id != a2.Id) 
+                    if (a1.Id != a2.Id)
                         continue;
 
                     var attributeValuesStr = _checkoutAttributeParser.ParseValues(checkoutAttributesXml, a1.Id);
@@ -949,8 +974,8 @@ namespace Nop.Services.Orders
                             break;
                         }
                 }
-                
-                if (found) 
+
+                if (found)
                     continue;
 
                 //if not found
@@ -984,10 +1009,10 @@ namespace Nop.Services.Orders
                 }
 
                 //maximum length
-                if (!ca.ValidationMaxLength.HasValue) 
+                if (!ca.ValidationMaxLength.HasValue)
                     continue;
 
-                if (ca.AttributeControlType != AttributeControlType.TextBox && ca.AttributeControlType != AttributeControlType.MultilineTextbox) 
+                if (ca.AttributeControlType != AttributeControlType.TextBox && ca.AttributeControlType != AttributeControlType.MultilineTextbox)
                     continue;
 
                 enteredText = _checkoutAttributeParser.ParseValues(checkoutAttributesXml, ca.Id).FirstOrDefault();
@@ -1029,7 +1054,7 @@ namespace Nop.Services.Orders
 
             foreach (var sci in shoppingCart.Where(a => a.ShoppingCartType == shoppingCartType))
             {
-                if (sci.ProductId != product.Id) 
+                if (sci.ProductId != product.Id)
                     continue;
 
                 //attributes
@@ -1141,7 +1166,7 @@ namespace Nop.Services.Orders
                     customerEnteredPrice, rentalStartDate, rentalEndDate,
                     newQuantity, addRequiredProducts, shoppingCartItem.Id));
 
-                if (warnings.Any()) 
+                if (warnings.Any())
                     return warnings;
 
                 shoppingCartItem.AttributesXml = attributesXml;
@@ -1160,7 +1185,7 @@ namespace Nop.Services.Orders
                     rentalStartDate, rentalEndDate,
                     quantity, addRequiredProducts));
 
-                if (warnings.Any()) 
+                if (warnings.Any())
                     return warnings;
 
                 //maximum items validation
@@ -1180,7 +1205,7 @@ namespace Nop.Services.Orders
                             warnings.Add(string.Format(_localizationService.GetResource("ShoppingCart.MaximumWishlistItems"), _shoppingCartSettings.MaximumWishlistItems));
                             return warnings;
                         }
-                    
+
                         break;
                     default:
                         break;
@@ -1212,6 +1237,14 @@ namespace Nop.Services.Orders
             }
 
             return warnings;
+        }
+
+        public void InsertShoppingCartItem(ShoppingCartItem shoppingCartItem)
+        {
+            if (shoppingCartItem != null)
+            {
+                _sciRepository.Insert(shoppingCartItem);
+            }
         }
 
         /// <summary>
@@ -1282,6 +1315,21 @@ namespace Nop.Services.Orders
             }
 
             return warnings;
+        }
+
+        public void UpdateShoppingCartItem(ShoppingCartItem shoppingCartItem)
+        {
+            if (shoppingCartItem != null && shoppingCartItem.Id > 0)
+            {
+                _sciRepository.Update(shoppingCartItem);
+            }
+        }
+        public void DeleteShoppingCartItem(ShoppingCartItem shoppingCartItem)
+        {
+            if (shoppingCartItem != null && shoppingCartItem.Id > 0)
+            {
+                _sciRepository.Delete(shoppingCartItem);
+            }
         }
 
         /// <summary>
@@ -1383,7 +1431,7 @@ namespace Nop.Services.Orders
                     throw new NopException($"Product (Id={sci.ProductId}) cannot be loaded");
                 }
 
-                if (!product.IsRecurring) 
+                if (!product.IsRecurring)
                     continue;
 
                 var conflictError = _localizationService.GetResource("ShoppingCart.ConflictingShipmentSchedules");
@@ -1404,7 +1452,7 @@ namespace Nop.Services.Orders
                 _totalCycles = product.RecurringTotalCycles;
             }
 
-            if (!_cycleLength.HasValue) 
+            if (!_cycleLength.HasValue)
                 return string.Empty;
 
             cycleLength = _cycleLength.Value;

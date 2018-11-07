@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
@@ -22,6 +19,9 @@ using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Shipping.Date;
 using Nop.Services.Stores;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services.Catalog
 {
@@ -377,10 +377,19 @@ namespace Nop.Services.Catalog
 
         public IList<Product> GetProductsByTypeEstimateStep(TypeEstimateStep step)
         {
-            var stepId = (int) step;
+            var stepId = (int)step;
+            if (step == TypeEstimateStep.Ruot)
+            {
+                stepId = (int)TypeEstimateStep.Bia;
+            }
+            if (step == TypeEstimateStep.RuotTruocIn)
+            {
+                stepId = (int)TypeEstimateStep.BiaTruocIn;
+            }
             var query = from p in _productRepository.Table
-                where p.TypeEstimateStepId == stepId orderby p.Name 
-                select p ;
+                        where p.TypeEstimateStepId == stepId
+                        orderby p.Name
+                        select p;
             return query.ToList();
         }
 

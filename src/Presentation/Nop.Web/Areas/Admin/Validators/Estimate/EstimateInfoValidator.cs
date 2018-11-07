@@ -15,7 +15,7 @@ namespace Nop.Web.Areas.Admin.Validators.Estimate
             RuleFor(x => x.CustomerPhone).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.CustomerPhone.Required"));
             RuleFor(x => x.Title).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.Title.Required"));
             RuleFor(x => x.TotalNumber).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.TotalNumber.Required"));
-            RuleFor(x => x.UnitName).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.UnitName.Required"));
+            RuleFor(x => x.UnitNameNote).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.UnitName.Required"));
             RuleFor(x => x.ExtendNote).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.ExtendNote.Required"));
             RuleFor(x => x.CreatedDate).NotEmpty().WithMessage(localizationService.GetResource("EstimateInfo.Fields.CreatedDate.Required"));
         }

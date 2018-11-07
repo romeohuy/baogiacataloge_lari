@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Services.Orders
 {
@@ -11,6 +11,8 @@ namespace Nop.Services.Orders
     /// </summary>
     public partial interface IShoppingCartService
     {
+        ShoppingCartItem GetShoppingCartItemById(int id);
+        IList<ShoppingCartItem> GetShoppingCartItems(int estimateInfoId, int customerId, int typeEstimateStepId);
         /// <summary>
         /// Delete shopping cart item
         /// </summary>
@@ -180,7 +182,7 @@ namespace Nop.Services.Orders
             decimal customerEnteredPrice = decimal.Zero,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool addRequiredProducts = true);
-
+        void InsertShoppingCartItem(ShoppingCartItem shoppingCartItem);
         /// <summary>
         /// Updates the shopping cart item
         /// </summary>
@@ -198,6 +200,10 @@ namespace Nop.Services.Orders
             decimal customerEnteredPrice,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool resetCheckoutData = true);
+
+        void UpdateShoppingCartItem(ShoppingCartItem shoppingCartItem);
+        void DeleteShoppingCartItem(ShoppingCartItem shoppingCartItem);
+
 
         /// <summary>
         /// Migrate shopping cart

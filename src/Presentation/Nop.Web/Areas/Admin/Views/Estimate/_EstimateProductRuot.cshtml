@@ -3,21 +3,33 @@
 @model ProductByTypeEstimateStepModel
 
 <div class="row">
-    <div class="col-md-2">
-        <nop-label asp-for="ProductItems" />
+    <div class="col-md-12">
+        <div class="form-group">
+            <div class="col-md-2">
+                <nop-label asp-for="ProductItems" />
+            </div>
+            <div class="col-md-10">
+                <nop-select class="ProductItems-ruot" asp-for="ProductItems" asp-items="@Model.ProductItems" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                <nop-label asp-for="HandPrints" />
+            </div>
+            <div class="col-md-10">
+                <nop-select asp-for="HandPrints" asp-items="@Model.HandPrints" />
+            </div>
+        </div>
     </div>
-    <div class="col-md-8 mb-3">
-        <nop-select class="ProductItems-bia" asp-for="ProductItems" asp-items="@Model.ProductItems" />
-    </div>
-    <div class="col-md-2 mb-3">
-        <button id="btnSelectProductBia" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
+    <div class="col-md-12 text-right">
+        <button id="btnSelectProductRuot" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
     </div>
 </div>
-<div id="product-bia-info"></div>
+<div id="product-ruot-info"></div>
 <script>
     $(function() {
-        $("#btnSelectProductBia").on('click', function() {
-            var productId = $(".ProductItems-bia").val();
+        $("#btnSelectProductRuot").on('click', function() {
+            var productId = $(".ProductItems-ruot").val();
             var estimateId = $("#EstimateInfoId").val();
             if (productId === '0') {
                 alert('Vui lòng chọn sản phẩm.');
@@ -30,11 +42,11 @@
                     data: addAntiForgeryToken({
                         productId: productId,
                         estimateId: estimateId,
-                        typeEstimateStepId: @((int)TypeEstimateStep.Bia)
+                        typeEstimateStepId: @((int)TypeEstimateStep.Ruot)
                     })
                 }).done(function( result ) {
                     if (result.Success) {
-                        $("#product-bia-info").html(result.Data);
+                        $("#product-ruot-info").html(result.Data);
                     }
                 });
             }
@@ -44,12 +56,12 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <div id="estimate-product-bia-grid"></div>
+        <div id="estimate-product-ruot-grid"></div>
     </div>
 
     <script>
         $(document).ready(function() {
-            $("#estimate-product-bia-grid").kendoGrid({
+            $("#estimate-product-ruot-grid").kendoGrid({
                 dataSource: {
                     type: "json",
                     transport: {
@@ -61,7 +73,7 @@
                                 var data = {
                                     estimateInfoId: $("#EstimateInfoId").val(),
                                     customerId: $("#CustomerId").val(),
-                                    typeEstimateStepId: @((int)TypeEstimateStep.Bia)
+                                    typeEstimateStepId: "@((int)TypeEstimateStep.Ruot)"
                                 };
                                 addAntiForgeryToken(data);
                                 return data;
@@ -95,12 +107,20 @@
                 scrollable: false,
                     columns: [
                     {
-                        field: "ProductName",
-                        title: "@T("Admin.CurrentCarts.ProductName")"
+                        field: "HandPrint",
+                        title: "@T("Admin.CurrentCarts.HandPrint")",
+                        width: 100
                     },
                     {
+                        field: "ProductName",
+                        title: "@T("Admin.CurrentCarts.ProductName")"
+                    }, {
                         field: "ShortDescription",
                         title: "@T("Admin.CurrentCarts.ShortDescription")"
+                    },  {
+                    field: "UnitName",
+                    title: "@T("Admin.CurrentCarts.UnitName")",
+                    width: 100
                     }, {
                         field: "Quantity",
                         title: "@T("Admin.CurrentCarts.Quantity")",
@@ -111,14 +131,14 @@
                         width: 150,
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
-                        template: '<button type="button" onclick="editShoppingCartItemBia(#=Id#);" class="btn-edit-shopping-cart-item btn btn-sm btn-primary" ><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>'+
-                            '<button type="button" onclick="deleteShoppingCartItemBia(#=Id#);" class="btn-delete-shopping-cart-item btn btn-sm btn-danger" ><i class="fa fa-pencil"></i>@T("Admin.Common.Delete")</button>'
+                            template: '<button type="button" onclick="editShoppingCartItemRuot(#=Id#);" class="btn-edit-shopping-cart-item btn btn-sm btn-primary" ><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>'+
+                            '<button type="button" onclick="deleteShoppingCartItemRuot(#=Id#);" class="btn-delete-shopping-cart-item btn btn-sm btn-danger" ><i class="fa fa-pencil"></i>@T("Admin.Common.Delete")</button>'
                     }
                 ]
             });
         });
 
-        function editShoppingCartItemBia(shoppingCartItemId) {
+        function editShoppingCartItemRuot(shoppingCartItemId) {
             if (shoppingCartItemId > 0) {
                 $.ajax({
                     url: "@Html.Raw(Url.Action("GetShoppingCartItem", "Estimate"))",
@@ -129,13 +149,13 @@
                     })
                 }).done(function( result ) {
                     if (result.Success) {
-                        $("#product-bia-info").html(result.Data);
+                        $("#product-ruot-info").html(result.Data);
                     }
                 });
             }
         }
 
-        function deleteShoppingCartItemBia(shoppingCartItemId) {
+        function deleteShoppingCartItemRuot(shoppingCartItemId) {
             if (shoppingCartItemId > 0) {
                 $.ajax({
                     url: "@Html.Raw(Url.Action("DeleteShoppingCartItem", "Estimate"))",
@@ -145,8 +165,8 @@
                         id: shoppingCartItemId
                     })
                 }).done(function( result ) {
-                    var gridProductBia = $('#estimate-product-bia-grid').data('kendoGrid');
-                    gridProductBia.dataSource.page(1);
+                    var gridProductRuot = $('#estimate-product-ruot-grid').data('kendoGrid');
+                    gridProductRuot.dataSource.page(1);
                     return false;
                 });
             }

@@ -17,7 +17,7 @@ namespace Nop.Web.Areas.Admin.Models.Estimate
 
         public List<EstimateInfoModel> EstimateInfoNewModels { get; set; }
         public EstimateInfoModel EstimateInfoModel { get; set; }
-
+        public EstimateSummaryModel EstimateSummaryModel { get; set; }
         public List<ProductByTypeEstimateStepModel> ProductByTypeEstimateSteps { get; set; }
     }
 
@@ -27,14 +27,18 @@ namespace Nop.Web.Areas.Admin.Models.Estimate
         {
             ProductItems = new List<SelectListItem>();
             ProductModels = new List<ProductModel>();
+            HandPrints = new List<SelectListItem>();
         }
-        [NopResourceDisplayName("Web.ProductByTypeEstimateStep.Fields.TypeEstimateStep")]
+        [NopResourceDisplayName("Admin.ProductByTypeEstimateStep.Fields.TypeEstimateStep")]
         public int TypeEstimateStepId { get; set; }
         public TypeEstimateStep TypeEstimateStep { get; set; }
 
-        [NopResourceDisplayName("Web.ProductByTypeEstimateStep.Fields.Product")]
+        [NopResourceDisplayName("Admin.ProductByTypeEstimateStep.Fields.Product")]
         public int ProductId { get; set; }
+        [NopResourceDisplayName("Admin.ProductByTypeEstimateStep.Fields.ProductItems")]
         public List<SelectListItem> ProductItems { get; set; }
+        [NopResourceDisplayName("Admin.ProductByTypeEstimateStep.Fields.HandPrints")]
+        public List<SelectListItem> HandPrints { get; set; }
         public List<ProductModel> ProductModels { get; set; }
     }
 }

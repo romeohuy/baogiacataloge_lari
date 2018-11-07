@@ -39,12 +39,23 @@
                     <div class="row">
                         @foreach (var item in Model.EstimateInfoNewModels)
                         {
-                            <div class="col-md-12" style="margin: 5px 0;">
+                            <div class="col-md-10" style="margin: 5px 0;">
                                 <i class="fa fa-arrow-circle-right"></i>
                                 <a asp-action="Create" asp-route-id="@item.Id">
-                                    ID:#@item.Id - @item.Title (@($"{item.CustomerFirstName} {item.CustomerLastName} - {item.CustomerPhone}") )- @item.CreatedDate.ToString("g")
+                                    ID:#@item.Id - @item.Title (@($"{item.CustomerFirstName} {item.CustomerLastName} - {item.CustomerPhone}") )- @item.CreatedDate.ToString("dd/MM/yyyy")
                                 </a>
                             </div>
+                            <div class="col-md-2 text-right" style="margin: 5px 0;">
+                                <button class="btn-delete-item btn btn-danger" data-toggle="modal" data-target="#deleteModal_@item.Id"><i class="fa fa-trash"></i> @T("Admin.Common.Delete")</button>
+                                @await Html.PartialAsync("Delete", new DeleteConfirmationModel
+                                {
+                                    Id = item.Id,
+                                    ControllerName = "Estimate",
+                                    ActionName = "Delete",
+                                    WindowId = $"deleteModal_{item.Id}"
+                                })
+                            </div>
+                            <hr />
                         }
                     </div>
                 </div>

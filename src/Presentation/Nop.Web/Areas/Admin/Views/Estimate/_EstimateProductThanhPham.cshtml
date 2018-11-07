@@ -7,17 +7,17 @@
         <nop-label asp-for="ProductItems" />
     </div>
     <div class="col-md-8 mb-3">
-        <nop-select class="ProductItems-bia" asp-for="ProductItems" asp-items="@Model.ProductItems" />
+        <nop-select class="ProductItems-thanhpham" asp-for="ProductItems" asp-items="@Model.ProductItems" />
     </div>
     <div class="col-md-2 mb-3">
-        <button id="btnSelectProductBia" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
+        <button id="btnSelectProductThanhPham" type="button" class="btn btn-success">@T("ProductByTypeEstimateStep.Button.SelectProduct")</button>
     </div>
 </div>
-<div id="product-bia-info"></div>
+<div id="product-thanhpham-info"></div>
 <script>
     $(function() {
-        $("#btnSelectProductBia").on('click', function() {
-            var productId = $(".ProductItems-bia").val();
+        $("#btnSelectProductThanhPham").on('click', function() {
+            var productId = $(".ProductItems-thanhpham").val();
             var estimateId = $("#EstimateInfoId").val();
             if (productId === '0') {
                 alert('Vui lòng chọn sản phẩm.');
@@ -30,11 +30,11 @@
                     data: addAntiForgeryToken({
                         productId: productId,
                         estimateId: estimateId,
-                        typeEstimateStepId: @((int)TypeEstimateStep.Bia)
+                        typeEstimateStepId: @((int)TypeEstimateStep.ThanhPham)
                     })
                 }).done(function( result ) {
                     if (result.Success) {
-                        $("#product-bia-info").html(result.Data);
+                        $("#product-thanhpham-info").html(result.Data);
                     }
                 });
             }
@@ -44,12 +44,12 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <div id="estimate-product-bia-grid"></div>
+        <div id="estimate-product-thanhpham-grid"></div>
     </div>
 
     <script>
         $(document).ready(function() {
-            $("#estimate-product-bia-grid").kendoGrid({
+            $("#estimate-product-thanhpham-grid").kendoGrid({
                 dataSource: {
                     type: "json",
                     transport: {
@@ -61,7 +61,7 @@
                                 var data = {
                                     estimateInfoId: $("#EstimateInfoId").val(),
                                     customerId: $("#CustomerId").val(),
-                                    typeEstimateStepId: @((int)TypeEstimateStep.Bia)
+                                    typeEstimateStepId: "@((int)TypeEstimateStep.ThanhPham)"
                                 };
                                 addAntiForgeryToken(data);
                                 return data;
@@ -101,24 +101,34 @@
                     {
                         field: "ShortDescription",
                         title: "@T("Admin.CurrentCarts.ShortDescription")"
-                    }, {
+                    }
+                        @*, {
+                    field: "UnitPrice",
+                    title: "@T("Admin.CurrentCarts.UnitPrice")",
+                    width: 100
+                    }*@
+                    , {
                         field: "Quantity",
                         title: "@T("Admin.CurrentCarts.Quantity")",
                         width: 100
                     }, {
+                            field: "Total",
+                            title: "@T("Admin.CurrentCarts.Total")",
+                            width: 100
+                        }, {
                         field: "Id",
                         title: "@T("Admin.Common.Action")",
                         width: 150,
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
-                        template: '<button type="button" onclick="editShoppingCartItemBia(#=Id#);" class="btn-edit-shopping-cart-item btn btn-sm btn-primary" ><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>'+
-                            '<button type="button" onclick="deleteShoppingCartItemBia(#=Id#);" class="btn-delete-shopping-cart-item btn btn-sm btn-danger" ><i class="fa fa-pencil"></i>@T("Admin.Common.Delete")</button>'
+                            template: '<button type="button" onclick="editShoppingCartItemThanhPham(#=Id#);" class="btn-edit-shopping-cart-item btn btn-sm btn-primary" ><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>'+
+                            '<button type="button" onclick="deleteShoppingCartItemThanhPham(#=Id#);" class="btn-delete-shopping-cart-item btn btn-sm btn-danger" ><i class="fa fa-pencil"></i>@T("Admin.Common.Delete")</button>'
                     }
                 ]
             });
         });
 
-        function editShoppingCartItemBia(shoppingCartItemId) {
+        function editShoppingCartItemThanhPham(shoppingCartItemId) {
             if (shoppingCartItemId > 0) {
                 $.ajax({
                     url: "@Html.Raw(Url.Action("GetShoppingCartItem", "Estimate"))",
@@ -129,13 +139,13 @@
                     })
                 }).done(function( result ) {
                     if (result.Success) {
-                        $("#product-bia-info").html(result.Data);
+                        $("#product-thanhpham-info").html(result.Data);
                     }
                 });
             }
         }
 
-        function deleteShoppingCartItemBia(shoppingCartItemId) {
+        function deleteShoppingCartItemThanhPham(shoppingCartItemId) {
             if (shoppingCartItemId > 0) {
                 $.ajax({
                     url: "@Html.Raw(Url.Action("DeleteShoppingCartItem", "Estimate"))",
@@ -145,7 +155,7 @@
                         id: shoppingCartItemId
                     })
                 }).done(function( result ) {
-                    var gridProductBia = $('#estimate-product-bia-grid').data('kendoGrid');
+                    var gridProductBia = $('#estimate-product-thanhpham-grid').data('kendoGrid');
                     gridProductBia.dataSource.page(1);
                     return false;
                 });

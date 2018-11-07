@@ -13,6 +13,11 @@ namespace Nop.Core.Domain.Orders
         /// <summary>
         /// Wishlist
         /// </summary>
-        Wishlist = 2
+        Wishlist = 2,
+
+        /// <summary>
+        /// Wishlist
+        /// </summary>
+        Estimate = 3
     }
 }

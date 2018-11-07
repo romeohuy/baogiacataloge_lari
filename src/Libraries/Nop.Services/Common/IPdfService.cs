@@ -1,8 +1,9 @@
-using System.Collections.Generic;
-using System.IO;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Estimate;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Nop.Services.Common
 {
@@ -36,12 +37,14 @@ namespace Nop.Services.Common
         /// <param name="shipments">Shipments</param>
         /// <param name="languageId">Language identifier; 0 to use a language used when placing an order</param>
         void PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, int languageId = 0);
-        
+
         /// <summary>
         /// Print products to PDF
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="products">Products</param>
         void PrintProductsToPdf(Stream stream, IList<Product> products);
+        void PrintEstimateToPdf(Stream stream, EstimateInfo estimateInfo, IList<ShoppingCartItem> shoppingCartItems, int languageId = 0, int storeId = 0);
+
     }
 }
