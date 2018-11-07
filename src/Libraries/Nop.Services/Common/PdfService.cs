@@ -1263,7 +1263,7 @@ namespace Nop.Services.Common
             //header
             PrintEstimateHeader(pdfSettingsByStore, lang, estimateInfo, font, titleFont, doc);
 
-            foreach (var typeEstimateStep in Enum.GetValues(typeof(TypeEstimateStep)).Cast<TypeEstimateStep>())
+            foreach (var typeEstimateStep in Enum.GetValues(typeof(TypeEstimateStep)).Cast<TypeEstimateStep>().Where(_ => _ != TypeEstimateStep.TatCa))
             {
                 var typeEstimateStepId = (int)typeEstimateStep;
                 var items = shoppingCartItems.Where(_ => _.TypeEstimateStepId == typeEstimateStepId).ToList();
@@ -1271,7 +1271,7 @@ namespace Nop.Services.Common
                 PrintEstimateProducts(lang, titleFont, doc, estimateInfo.TypeEstimate, typeEstimateStep, items, font, attributesFont);
 
 
-                doc.NewPage();
+                //doc.NewPage();
             }
             ////totals
             //PrintTotals(vendorId, lang, order, font, titleFont, doc);
@@ -1283,6 +1283,7 @@ namespace Nop.Services.Common
 
         protected virtual void PrintEstimateHeader(PdfSettings pdfSettingsByStore, Language lang, EstimateInfo estimateInfo, Font font, Font titleFont, Document doc)
         {
+
             //logo
             var logoPicture = _pictureService.GetPictureById(pdfSettingsByStore.LogoPictureId);
             var logoExists = logoPicture != null;
@@ -1300,18 +1301,8 @@ namespace Nop.Services.Common
             {
                 Reference = store.Url
             };
+            var currentStore = _storeContext.CurrentStore;
 
-            var cellHeader = GetPdfCell(string.Format(_localizationService.GetResource("PDFEstimate.Number#", lang.Id), estimateInfo.NumberEstimate), titleFont);
-            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
-            cellHeader.Phrase.Add(new Phrase(anchor));
-            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
-            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.CreatedDate", lang, font, _dateTimeHelper.ConvertToUserTime(estimateInfo.CreatedDate, DateTimeKind.Utc).ToString("D", new CultureInfo(lang.LanguageCulture))));
-            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
-            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
-            cellHeader.HorizontalAlignment = Element.ALIGN_LEFT;
-            cellHeader.Border = Rectangle.NO_BORDER;
-
-            headerTable.AddCell(cellHeader);
 
             if (logoExists)
                 headerTable.SetWidths(lang.Rtl ? new[] { 0.2f, 0.8f } : new[] { 0.8f, 0.2f });
@@ -1329,6 +1320,39 @@ namespace Nop.Services.Common
                 cellLogo.AddElement(logo);
                 headerTable.AddCell(cellLogo);
             }
+
+            var cellHeader = GetPdfCell(store.Name, titleFont);
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(store.CompanyAddress));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(store.CompanyPhoneNumber));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase("--------------------------------"));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.Number#", lang, titleFont, estimateInfo.NumberEstimate));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.Title", lang, titleFont, estimateInfo.Title));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.CustomerFullName", lang, titleFont, $"{estimateInfo.CustomerFirstName} {estimateInfo.CustomerLastName}"));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.CustomerPhone", lang, titleFont, estimateInfo.CustomerPhone));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.ProductTypeName", lang, titleFont, estimateInfo.ProductTypeName));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.ProductName", lang, titleFont, estimateInfo.ProductName));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.ExtendNote", lang, titleFont, estimateInfo.ExtendNote));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.TotalNumber", lang, titleFont, $" {estimateInfo.TotalNumber} {estimateInfo.UnitNameNote}"));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(anchor));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(GetParagraph("PDFEstimate.CreatedDate", lang, font, _dateTimeHelper.ConvertToUserTime(estimateInfo.CreatedDate, DateTimeKind.Utc).ToString("D", new CultureInfo(lang.LanguageCulture))));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.Phrase.Add(new Phrase(Environment.NewLine));
+            cellHeader.HorizontalAlignment = Element.ALIGN_LEFT;
+            cellHeader.Border = Rectangle.NO_BORDER;
+
+            headerTable.AddCell(cellHeader);
 
             doc.Add(headerTable);
         }
